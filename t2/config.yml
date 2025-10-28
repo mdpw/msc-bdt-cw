@@ -1,0 +1,27 @@
+# Configuration file for Traffic Detector Data Processing
+
+# File paths
+files:
+  csv_input: 'Traffic_Detectors_20251028.csv'
+  csv_output: 'preprocessed_traffic_detectors.csv'
+  json_output: 'traffic_detectors.json'
+
+# Kafka configuration
+kafka:
+  bootstrap_servers: '192.168.1.38:9092'
+  topic: 'raw-sensor-data'
+  processed_topic: 'processed-sensor-data'
+
+# Streaming configuration
+streaming:
+  interval_seconds: 5        # Time between messages
+  loop_streaming: true       # Continuously loop through data
+  max_messages: null         # null for unlimited, or set a number
+
+# PostgreSQL database configuration
+postgres:
+  host: 'localhost'
+  port: 5432
+  database: 'traffic-sensor'
+  user: 'admin'
+  password: 'admin123'

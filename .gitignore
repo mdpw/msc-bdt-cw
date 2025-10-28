@@ -7,7 +7,7 @@ __pycache__/
 *.pyc
 
 # Virtual Environments
-energy-env/
+t2-env/
 manufacturing-env/
 banking-env/
 venv/

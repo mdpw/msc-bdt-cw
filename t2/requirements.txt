@@ -1,0 +1,4 @@
+pandas
+kafka-python
+pyyaml>=6.0.0
+psycopg2-binary
