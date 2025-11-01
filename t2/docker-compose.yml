@@ -27,6 +27,8 @@ services:
       - postgres
     networks:
       - appnet
+    volumes:
+      - grafana_data:/var/lib/grafana
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -41,6 +43,7 @@ services:
 
 volumes:
   postgres_data:
+  grafana_data:
 
 networks:
   appnet:

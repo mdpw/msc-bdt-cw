@@ -1,25 +1,40 @@
 # Configuration file for Traffic Detector Data Processing
 
-# File paths
-files:
-  csv_input: 'Traffic_Detectors_20251028.csv'
-  csv_output: 'preprocessed_traffic_detectors.csv'
-  json_output: 'traffic_detectors.json'
-
-# Kafka configuration
+# Kafka Configuration
 kafka:
   bootstrap_servers: '192.168.1.38:9092'
-  topic: 'raw-sensor-data'
-  processed_topic: 'processed-sensor-data'
+  topic: 'traffic-data'
+  consumer_group_id: 'traffic-consumer'
+  enable_output_topics: true    # ← Enable/disable Kafka output
 
-# Streaming configuration
-streaming:
-  interval_seconds: 5        # Time between messages
-  loop_streaming: true       # Continuously loop through data
-  max_messages: null         # null for unlimited, or set a number
+# Austin Open Data API Configuration
+api:
+  domain: 'data.austintexas.gov'
+  dataset_id: 'qpuw-8eeb'  # Austin Traffic Detectors dataset
+  app_token: 'K7qQwT4oQv5YSrOyhk5Bnimb8'           # Optional: Add your Socrata app token for higher rate limits
+  username: 'dineshwij.dev@gmail.com'            # Optional: For authenticated access
+  password: 'Welcome@1234567'            # Optional: For authenticated access
+
+# Producer Configuration
+producer:
+  fetch_interval_minutes: 10    # How often to fetch data from API
+  records_per_fetch: 6000       # Maximum records per API call
+  kafka_timeout_seconds: 10     # Timeout for Kafka send operations
+
+# Consumer Configuration
+consumer:
+  auto_offset_reset: 'earliest'   # Start from 'earliest' or 'latest' messages
+  enable_auto_commit: true      # Auto commit message offsets
+  stats_display_interval: 10    # Show stats every N messages
+
+# Logging Configuration
+logging:
+  level: 'INFO'                 # DEBUG, INFO, WARNING, ERROR
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 # PostgreSQL database configuration
 postgres:
+  enabled: true
   host: 'localhost'
   port: 5432
   database: 'traffic-sensor'

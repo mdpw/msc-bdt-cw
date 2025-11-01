@@ -1,104 +1,177 @@
--- PostgreSQL Database Schema for Traffic Detector System
+-- Traffic Metrics Database Setup Script
+-- Run this script to create the required tables for traffic metrics storage
 
--- Table 1: Raw sensor data
-CREATE TABLE IF NOT EXISTS sensor_data (
+-- Create database (run this as superuser if database doesn't exist)
+-- CREATE DATABASE "traffic-sensor";
+
+-- Connect to the traffic-sensor database before running the rest
+
+-- =====================================================
+-- Table 1: Hourly Vehicle Metrics
+-- =====================================================
+CREATE TABLE IF NOT EXISTS hourly_vehicle_metrics (
     id SERIAL PRIMARY KEY,
-    detector_id VARCHAR(50),
-    detector_type VARCHAR(50),
-    detector_status VARCHAR(50),
-    detector_direction TEXT,
-    detector_movement TEXT,
-    location_name TEXT,
-    location_latitude FLOAT,
-    location_longitude FLOAT,
-    stream_timestamp TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Index for faster queries on detector_id
-CREATE INDEX IF NOT EXISTS idx_sensor_data_detector_id ON sensor_data(detector_id);
-CREATE INDEX IF NOT EXISTS idx_sensor_data_timestamp ON sensor_data(stream_timestamp);
-
--- Table 2: Hourly metrics
-CREATE TABLE IF NOT EXISTS hourly_metrics (
-    id SERIAL PRIMARY KEY,
-    detector_id VARCHAR(50),
-    hour_timestamp TIMESTAMP,
-    vehicle_count INT,
-    avg_count FLOAT,
+    hour_timestamp TIMESTAMP NOT NULL,
+    sensor_id VARCHAR(50) NOT NULL,
+    vehicle_count INTEGER NOT NULL,
+    avg_vehicles_per_hour DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(detector_id, hour_timestamp)
+    UNIQUE(hour_timestamp, sensor_id)
 );
 
--- Index for faster queries
-CREATE INDEX IF NOT EXISTS idx_hourly_detector_id ON hourly_metrics(detector_id);
-CREATE INDEX IF NOT EXISTS idx_hourly_timestamp ON hourly_metrics(hour_timestamp);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_hourly_metrics_timestamp ON hourly_vehicle_metrics(hour_timestamp);
+CREATE INDEX IF NOT EXISTS idx_hourly_metrics_sensor ON hourly_vehicle_metrics(sensor_id);
+CREATE INDEX IF NOT EXISTS idx_hourly_metrics_created ON hourly_vehicle_metrics(created_at);
 
--- Table 3: Daily metrics
-CREATE TABLE IF NOT EXISTS daily_metrics (
+-- =====================================================
+-- Table 2: Daily Peak Metrics
+-- =====================================================
+CREATE TABLE IF NOT EXISTS daily_peak_metrics (
     id SERIAL PRIMARY KEY,
-    date DATE,
-    peak_detector_id VARCHAR(50),
-    peak_volume INT,
-    total_volume INT,
+    date DATE NOT NULL,
+    total_volume INTEGER NOT NULL,
+    peak_sensor_id VARCHAR(50) NOT NULL,
+    peak_sensor_volume INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(date)
 );
 
--- Index for faster queries
-CREATE INDEX IF NOT EXISTS idx_daily_date ON daily_metrics(date);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_daily_metrics_date ON daily_peak_metrics(date);
+CREATE INDEX IF NOT EXISTS idx_daily_metrics_peak_sensor ON daily_peak_metrics(peak_sensor_id);
+CREATE INDEX IF NOT EXISTS idx_daily_metrics_created ON daily_peak_metrics(created_at);
 
--- Table 4: Sensor availability
-CREATE TABLE IF NOT EXISTS sensor_availability (
+-- =====================================================
+-- Table 3: Sensor Availability Metrics
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sensor_availability_metrics (
     id SERIAL PRIMARY KEY,
-    detector_id VARCHAR(50),
-    availability_percent FLOAT,
+    measurement_timestamp TIMESTAMP NOT NULL,
+    sensor_id VARCHAR(50) NOT NULL,
+    availability_percentage DECIMAL(5,2) NOT NULL,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('OK', 'DEGRADED', 'DOWN')),
     last_seen TIMESTAMP,
-    status VARCHAR(20),
-    checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Index for faster queries
-CREATE INDEX IF NOT EXISTS idx_availability_detector_id ON sensor_availability(detector_id);
-CREATE INDEX IF NOT EXISTS idx_availability_checked_at ON sensor_availability(checked_at);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_availability_timestamp ON sensor_availability_metrics(measurement_timestamp);
+CREATE INDEX IF NOT EXISTS idx_availability_sensor ON sensor_availability_metrics(sensor_id);
+CREATE INDEX IF NOT EXISTS idx_availability_status ON sensor_availability_metrics(status);
+CREATE INDEX IF NOT EXISTS idx_availability_created ON sensor_availability_metrics(created_at);
 
--- Useful views for Grafana
+-- =====================================================
+-- Sample Queries for Data Analysis
+-- =====================================================
 
--- View 1: Latest sensor status
-CREATE OR REPLACE VIEW latest_sensor_status AS
-SELECT DISTINCT ON (detector_id)
-    detector_id,
-    detector_type,
-    detector_status,
-    location_name,
-    location_latitude,
-    location_longitude,
-    stream_timestamp
-FROM sensor_data
-ORDER BY detector_id, stream_timestamp DESC;
-
--- View 2: Hourly traffic summary
-CREATE OR REPLACE VIEW hourly_traffic_summary AS
+-- Query 1: Get hourly vehicle count for a specific sensor
+/*
 SELECT 
     hour_timestamp,
-    COUNT(DISTINCT detector_id) as active_sensors,
-    SUM(vehicle_count) as total_vehicles,
-    AVG(avg_count) as avg_vehicles_per_sensor
-FROM hourly_metrics
-GROUP BY hour_timestamp
+    vehicle_count,
+    avg_vehicles_per_hour
+FROM hourly_vehicle_metrics 
+WHERE sensor_id = '12345' 
+    AND hour_timestamp >= CURRENT_DATE - INTERVAL '7 days'
 ORDER BY hour_timestamp DESC;
+*/
 
--- View 3: Current sensor availability
-CREATE OR REPLACE VIEW current_sensor_availability AS
-SELECT DISTINCT ON (detector_id)
-    detector_id,
-    availability_percent,
+-- Query 2: Get daily peak traffic for last 30 days
+/*
+SELECT 
+    date,
+    total_volume,
+    peak_sensor_id,
+    peak_sensor_volume
+FROM daily_peak_metrics 
+WHERE date >= CURRENT_DATE - INTERVAL '30 days'
+ORDER BY date DESC;
+*/
+
+-- Query 3: Get current sensor availability status
+/*
+SELECT DISTINCT ON (sensor_id)
+    sensor_id,
+    availability_percentage,
     status,
     last_seen,
-    checked_at
-FROM sensor_availability
-ORDER BY detector_id, checked_at DESC;
+    measurement_timestamp
+FROM sensor_availability_metrics 
+ORDER BY sensor_id, measurement_timestamp DESC;
+*/
 
+-- Query 4: Top 10 busiest sensors (by total vehicle count)
+/*
+SELECT 
+    sensor_id,
+    SUM(vehicle_count) as total_vehicles,
+    COUNT(*) as hours_recorded,
+    AVG(avg_vehicles_per_hour) as avg_hourly_rate
+FROM hourly_vehicle_metrics 
+WHERE hour_timestamp >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY sensor_id 
+ORDER BY total_vehicles DESC 
+LIMIT 10;
+*/
+
+-- Query 5: Sensor availability summary
+/*
+SELECT 
+    status,
+    COUNT(*) as sensor_count,
+    AVG(availability_percentage) as avg_availability
+FROM (
+    SELECT DISTINCT ON (sensor_id)
+        sensor_id,
+        availability_percentage,
+        status
+    FROM sensor_availability_metrics 
+    ORDER BY sensor_id, measurement_timestamp DESC
+) latest_status
+GROUP BY status
+ORDER BY avg_availability DESC;
+*/
+
+-- =====================================================
+-- Data Retention (Optional - Run periodically)
+-- =====================================================
+
+-- Keep only last 90 days of hourly data
+/*
+DELETE FROM hourly_vehicle_metrics 
+WHERE hour_timestamp < CURRENT_DATE - INTERVAL '90 days';
+*/
+
+-- Keep only last 365 days of daily data
+/*
+DELETE FROM daily_peak_metrics 
+WHERE date < CURRENT_DATE - INTERVAL '365 days';
+*/
+
+-- Keep only last 30 days of availability data
+/*
+DELETE FROM sensor_availability_metrics 
+WHERE measurement_timestamp < CURRENT_DATE - INTERVAL '30 days';
+*/
+
+-- =====================================================
 -- Grant permissions (adjust username as needed)
--- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO your_username;
--- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO your_username;
+-- =====================================================
+/*
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin;
+*/
+
+-- =====================================================
+-- Verify tables were created successfully
+-- =====================================================
+SELECT 
+    table_name,
+    column_name,
+    data_type,
+    is_nullable
+FROM information_schema.columns 
+WHERE table_schema = 'public' 
+    AND table_name IN ('hourly_vehicle_metrics', 'daily_peak_metrics', 'sensor_availability_metrics')
+ORDER BY table_name, ordinal_position;
