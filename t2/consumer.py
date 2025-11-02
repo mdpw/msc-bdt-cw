@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import threading
 import time
 from kafka import KafkaConsumer, KafkaProducer
+from datetime import datetime
 
 # Load configuration
 def load_config():
@@ -187,16 +188,34 @@ class TimeBasedTrafficMetrics:
                 hour_key = detection_time.strftime('%Y-%m-%d %H:00:00')
                 date_key = detection_time.strftime('%Y-%m-%d')
                 
+                # ADD DEBUG: Print what we're adding
+                if self.vehicle_detections % 100 == 0:  # Debug every 100 detections
+                    print(f"\n🔍 DEBUG VEHICLE DETECTION #{self.vehicle_detections}:")
+                    print(f"   Sensor: {detector_id}")
+                    print(f"   Detection time: {detection_time}")
+                    print(f"   Hour key: {hour_key}")
+                    print(f"   Current hour bucket size: {len(self.hourly_vehicle_counts)}")
+                    print(f"   Current hour bucket contents: {dict(self.hourly_vehicle_counts)}")
+                
                 # Increment vehicle counts
                 self.hourly_vehicle_counts[hour_key][detector_id] += 1
                 self.daily_vehicle_counts[date_key][detector_id] += 1
+                
+                # ADD DEBUG: Print after adding
+                if self.vehicle_detections % 100 == 0:
+                    print(f"   After adding - Hour bucket size: {len(self.hourly_vehicle_counts)}")
+                    print(f"   Hour {hour_key} now has: {self.hourly_vehicle_counts[hour_key][detector_id]} from sensor {detector_id}")
+                    print(f"   Total sensors in this hour: {len(self.hourly_vehicle_counts[hour_key])}")
                 
                 logger.debug(f"Vehicle detected: Sensor {detector_id} at {detection_time}")
                 return True
                 
             except Exception as e:
                 logger.error(f"Error processing vehicle detection: {e}")
+                print(f"🚨 ERROR in process_vehicle_detection: {e}")
+                print(f"   Record: {record}")
                 return False
+
     
     def update_sensor_status(self, record):
         """Update sensor status/availability regardless of vehicle detection"""
@@ -219,25 +238,40 @@ class TimeBasedTrafficMetrics:
             except Exception as e:
                 logger.error(f"Error updating sensor status: {e}")
     
-    def get_hourly_metrics(self, hours_back=24):
+    def get_hourly_metrics(self, hours_back=None):
         """Get hourly metrics for output"""
         with self.lock:
-            now = datetime.now()
             results = {}
             
-            for hours_ago in range(hours_back):
-                hour_time = now - timedelta(hours=hours_ago)
-                hour_key = hour_time.strftime('%Y-%m-%d %H:00:00')
+            if hours_back is None:
+                # Return ALL data (best for your use case)
+                print(f"🔍 Returning ALL {len(self.hourly_vehicle_counts)} hourly buckets")
                 
-                if hour_key in self.hourly_vehicle_counts:
+                for hour_key, sensors in self.hourly_vehicle_counts.items():
                     sensor_data = {}
-                    for sensor_id, count in self.hourly_vehicle_counts[hour_key].items():
+                    for sensor_id, count in sensors.items():
                         sensor_data[sensor_id] = {
                             'count': count,
-                            'avg': count  # For single hour, count = average
+                            'avg': count
                         }
                     results[hour_key] = sensor_data
+            else:
+                # Use time window if specified
+                now = datetime.now()
+                for hours_ago in range(hours_back):
+                    hour_time = now - timedelta(hours=hours_ago)
+                    hour_key = hour_time.strftime('%Y-%m-%d %H:00:00')
+                    
+                    if hour_key in self.hourly_vehicle_counts:
+                        sensor_data = {}
+                        for sensor_id, count in self.hourly_vehicle_counts[hour_key].items():
+                            sensor_data[sensor_id] = {
+                                'count': count,
+                                'avg': count
+                            }
+                        results[hour_key] = sensor_data
             
+            print(f"📊 Returning {len(results)} hours of data")
             return results
     
     def get_daily_metrics(self, days_back=7):
@@ -309,7 +343,7 @@ class TimeBasedTrafficMetrics:
             current_time = datetime.now().isoformat()
             
             # 1. Hourly metrics topic
-            hourly_data = self.get_hourly_metrics(24)
+            hourly_data = self.get_hourly_metrics()
             if hourly_data:
                 hourly_message = {
                     'timestamp': current_time,
@@ -357,7 +391,7 @@ class TimeBasedTrafficMetrics:
             current_time = datetime.now()
             
             # Save hourly metrics
-            hourly_data = self.get_hourly_metrics(24)
+            hourly_data = self.get_hourly_metrics()
             for hour_timestamp, sensor_metrics in hourly_data.items():
                 self.postgres_db.save_hourly_metrics(hour_timestamp, sensor_metrics)
             
@@ -389,7 +423,7 @@ class TimeBasedTrafficMetrics:
         logger.info(f"Vehicle detections: {self.vehicle_detections}")
         
         # Hourly averages
-        hourly_data = self.get_hourly_metrics(24)
+        hourly_data = self.get_hourly_metrics()
         if hourly_data:
             logger.info(f"\nHourly Vehicle Count (Last 24 hours):")
             for hour, sensors in sorted(hourly_data.items())[-5:]:  # Show last 5 hours
@@ -501,13 +535,52 @@ class TrafficConsumer:
             if self.metrics.process_vehicle_detection(record):
                 detector_id = record.get('detector_id', 'unknown')
                 logger.info(f"Vehicle detected by sensor {detector_id} "
-                           f"(Total detections: {self.metrics.vehicle_detections})")
+                        f"(Total detections: {self.metrics.vehicle_detections})")
+                
+                # ADD THIS: Force publication every 50 vehicle detections
+                if self.metrics.vehicle_detections % 50 == 0:
+                    logger.info(f"🚀 FORCING HOURLY METRICS PUBLICATION (every 50 vehicles)")
+                    
+                    # Get current hourly data
+                    hourly_data = self.metrics.get_hourly_metrics()
+                    logger.info(f"📊 Hourly buckets to publish: {len(hourly_data)}")
+                    
+                    if hourly_data:
+                        # Force Kafka publication
+                        try:
+                            current_time = datetime.now().isoformat()
+                            hourly_message = {
+                                'timestamp': current_time,
+                                'type': 'hourly_vehicle_metrics',
+                                'data': hourly_data
+                            }
+                            if self.kafka_producer:
+                                self.kafka_producer.send('hourly-vehicle-metrics', value=hourly_message)
+                                self.kafka_producer.flush()
+                                logger.info("✅ Forced Kafka publication SUCCESS")
+                            else:
+                                logger.warning("⚠️ No Kafka producer available")
+                        except Exception as e:
+                            logger.error(f"❌ Forced Kafka publication FAILED: {e}")
+                        
+                        # Force database save
+                        try:
+                            if self.postgres_db and self.postgres_db.enabled:
+                                for hour_timestamp, sensor_metrics in hourly_data.items():
+                                    self.postgres_db.save_hourly_metrics(hour_timestamp, sensor_metrics)
+                                logger.info("✅ Forced database save SUCCESS")
+                            else:
+                                logger.warning("⚠️ Database not enabled")
+                        except Exception as e:
+                            logger.error(f"❌ Forced database save FAILED: {e}")
+                    else:
+                        logger.warning("⚠️ No hourly data to publish")
             
             # Report progress
             if self.metrics.total_messages % 100 == 0:
                 logger.info(f"Processed {self.metrics.total_messages} messages, "
-                           f"{self.metrics.vehicle_detections} vehicle detections")
-                
+                        f"{self.metrics.vehicle_detections} vehicle detections")
+                    
         except Exception as e:
             logger.error(f"Error processing message: {e}")
     

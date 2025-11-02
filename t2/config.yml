@@ -5,7 +5,7 @@ kafka:
   bootstrap_servers: '192.168.1.38:9092'
   topic: 'traffic-data'
   consumer_group_id: 'traffic-consumer'
-  enable_output_topics: true    # ← Enable/disable Kafka output
+  enable_output_topics: true    # Enable/disable Kafka output
 
 # Austin Open Data API Configuration
 api:
