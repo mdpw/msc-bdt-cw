@@ -81,14 +81,14 @@ def main():
         print(f"ERROR: File {input_path} does not exist!")
         sys.exit(1)
     
-    print(f"✅ Input file verified: {format_bytes(os.path.getsize(input_path))}")
+    print(f"Input file verified: {format_bytes(os.path.getsize(input_path))}")
     
     sc = SparkContext(conf=conf)
     sc.setLogLevel("WARN")
     
-    print(f"✅ Spark initialized in LOCAL mode")
-    print(f"🎯 Spark UI: http://localhost:4040")
-    print(f"📊 Application ID: {sc.applicationId}")
+    print(f"Spark initialized in LOCAL mode")
+    print(f"Spark UI: http://localhost:4040")
+    print(f"Application ID: {sc.applicationId}")
     print()
     
     try:
@@ -96,34 +96,41 @@ def main():
         
         # Job 1: Data Loading
         job1_start = time.time()
-        print("📂 Loading data...")
+        print("Loading data...")
         
         # Use file:// protocol to force local filesystem
         file_uri = f"file://{os.path.abspath(input_path)}"
         edges = sc.textFile(file_uri)
         
         job1_time = time.time() - job1_start
-        print(f"   ✅ Data loaded in {format_time(job1_time)}")
+        print(f"   Data loaded in {format_time(job1_time)}")
         
         # Job 2: Calculate in-degrees
         job2_start = time.time()
-        print("🔢 Calculating in-degrees...")        
+        print("Calculating in-degrees...")        
         
-        indegree = (
+        # Process edges exactly like Hadoop Mapper
+        processed_edges = (
             edges
             .filter(lambda line: line.strip() and not line.startswith('#'))
-            .map(lambda line: line.strip().replace('\t', ' ').replace(',', ' ').split())
-            .filter(lambda parts: len(parts) >= 2)            
-            .map(lambda parts: (parts[1], 1))
+            .map(lambda line: line.strip().split())
+            .filter(lambda parts: len(parts) >= 2)
+            # NO numeric filtering - accept all valid node IDs (matches corrected Java code)
+        )
+        
+        # Calculate in-degrees
+        indegree = (
+            processed_edges
+            .map(lambda parts: (parts[1], 1))  # Target node gets +1 in-degree
             .reduceByKey(lambda a, b: a + b)
-)
+        )
         
         job2_time = time.time() - job2_start
-        print(f"   ✅ In-degrees calculated in {format_time(job2_time)}")
+        print(f"   In-degrees calculated in {format_time(job2_time)}")
         
         # Job 3: Compute distribution
         job3_start = time.time()
-        print("📊 Computing distribution...")
+        print("Computing distribution...")
         
         distribution = (
             indegree
@@ -133,22 +140,23 @@ def main():
         )
         
         job3_time = time.time() - job3_start
-        print(f"   ✅ Distribution computed in {format_time(job3_time)}")
+        print(f"   Distribution computed in {format_time(job3_time)}")
         
         # Job 4: Calculate statistics
         job4_start = time.time()
-        print("📈 Calculating statistics...")
+        print("Calculating statistics...")
         
-        total_edges = edges.filter(lambda line: line.strip() and not line.startswith('#')).count()
+        # Count processed edges (matches what Hadoop actually processes)
+        total_edges = processed_edges.count()
         unique_nodes = indegree.count()
         total_distribution_entries = distribution.count()
         
         job4_time = time.time() - job4_start
-        print(f"   ✅ Statistics calculated in {format_time(job4_time)}")
+        print(f"   Statistics calculated in {format_time(job4_time)}")
         
         # Job 5: Save results
         job5_start = time.time()
-        print("💾 Saving results...")
+        print("Saving results...")
         
         try:
             import subprocess
@@ -161,7 +169,7 @@ def main():
         distribution.saveAsTextFile(output_uri)
         
         job5_time = time.time() - job5_start
-        print(f"   ✅ Results saved in {format_time(job5_time)}")
+        print(f"   Results saved in {format_time(job5_time)}")
         
         overall_execution_time = time.time() - overall_start_time
         
@@ -169,18 +177,18 @@ def main():
         sys_metrics = get_system_metrics()
         
         print("\n" + "="*50)
-        print("📊 COMPREHENSIVE PERFORMANCE METRICS")
+        print("COMPREHENSIVE PERFORMANCE METRICS")
         print("="*50)
         
-        print(f"\n⏱️ EXECUTION TIME BREAKDOWN:")
+        print(f"\nEXECUTION TIME BREAKDOWN:")
         print(f"   Job 1 (Data Loading): {format_time(job1_time)} ({job1_time*1000:.0f} ms)")
         print(f"   Job 2 (Calculate In-Degrees): {format_time(job2_time)} ({job2_time*1000:.0f} ms)")
         print(f"   Job 3 (Calculate Distribution): {format_time(job3_time)} ({job3_time*1000:.0f} ms)")
         print(f"   Job 4 (Calculate Statistics): {format_time(job4_time)} ({job4_time*1000:.0f} ms)")
         print(f"   Job 5 (Save Results): {format_time(job5_time)} ({job5_time*1000:.0f} ms)")
-        print(f"   📋 TOTAL EXECUTION TIME: {format_time(overall_execution_time)} ({overall_execution_time*1000:.0f} ms)")
+        print(f"   TOTAL EXECUTION TIME: {format_time(overall_execution_time)} ({overall_execution_time*1000:.0f} ms)")
         
-        print(f"\n💾 SYSTEM RESOURCE METRICS:")
+        print(f"\nSYSTEM RESOURCE METRICS:")
         if sys_metrics:
             print(f"   CPU Usage: {sys_metrics.get('cpu_percent', 0):.1f}%")
             print(f"   Process Memory (RSS): {format_bytes(sys_metrics.get('memory_rss', 0))}")
@@ -189,7 +197,7 @@ def main():
             print(f"   Total System Memory: {format_bytes(sys_metrics.get('total_system_memory', 0))}")
             print(f"   Available System Memory: {format_bytes(sys_metrics.get('available_system_memory', 0))}")
         
-        print(f"\n📈 DATA PROCESSING STATISTICS:")
+        print(f"\nDATA PROCESSING STATISTICS:")
         print(f"   Dataset: {dataset_name}")
         print(f"   Input File Size: {format_bytes(os.path.getsize(input_path))}")
         print(f"   Total Edges Processed: {total_edges:,}")
@@ -197,12 +205,12 @@ def main():
         print(f"   Distribution Entries: {total_distribution_entries}")
         print(f"   Application ID: {sc.applicationId}")
         
-        print("\n📋 In-degree distribution (first 10):")
+        print("\nIn-degree distribution (first 10):")
         sample = distribution.take(10)
         for degree, count in sample:
             print(f"   Degree {degree}: {count:,} nodes")
         
-        print("\n🏆 Top 5 highest in-degrees:")
+        print("\nTop 5 highest in-degrees:")
         top_nodes = indegree.top(5, key=lambda x: x[1])
         for node_id, degree in top_nodes:
             print(f"   Node {node_id}: {degree:,} in-degree")
@@ -237,22 +245,22 @@ def main():
                 f.write(f"Process Memory (VMS): {format_bytes(sys_metrics.get('memory_vms', 0))}\n")
                 f.write(f"Total System Memory: {format_bytes(sys_metrics.get('total_system_memory', 0))}\n")
         
-        print(f"\n✅ Results saved to: {output_dir}")
-        print(f"📄 Comprehensive summary: {summary_file}")
+        print(f"\nResults saved to: {output_dir}")
+        print(f"Comprehensive summary: {summary_file}")
         
-        print(f"\n🎯 SPARK UI METRICS AVAILABLE:")
-        print(f"   📊 Live Spark UI: http://localhost:4040")
-        print(f"   📈 Spark History: http://localhost:18080 (after completion)")
-        print(f"   💡 Detailed job/stage/task metrics available in UI")
+        print(f"\nSPARK UI METRICS AVAILABLE:")
+        print(f"   Live Spark UI: http://localhost:4040")
+        print(f"   Spark History: http://localhost:18080 (after completion)")
+        print(f"   Detailed job/stage/task metrics available in UI")
         
-        print(f"\n🔍 FOR HADOOP COMPARISON:")
-        print(f"   ⏱️ Total Execution Time: {format_time(overall_execution_time)} ({overall_execution_time*1000:.0f} ms)")
-        print(f"   📊 Job-by-job breakdown matches Hadoop MapReduce structure")
-        print(f"   📸 Take screenshots of Spark UI for side-by-side comparison")
+        print(f"\nFOR HADOOP COMPARISON:")
+        print(f"   Total Execution Time: {format_time(overall_execution_time)} ({overall_execution_time*1000:.0f} ms)")
+        print(f"   Job-by-job breakdown matches Hadoop MapReduce structure")
+        print(f"   Take screenshots of Spark UI for side-by-side comparison")
         print("="*50)
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

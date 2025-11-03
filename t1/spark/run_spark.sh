@@ -61,11 +61,11 @@ if [ ! -f "$FULL_INPUT_PATH" ]; then
 fi
 
 # Install required Python packages if not available
-echo "🔧 Checking Python dependencies..."
+echo "Checking Python dependencies..."
 python3 -c "import psutil" 2>/dev/null || {
-    echo "📦 Installing psutil for system metrics..."
+    echo "Installing psutil for system metrics..."
     pip3 install psutil --user --quiet || {
-        echo "⚠️ Could not install psutil. System metrics will be limited."
+        echo "Could not install psutil. System metrics will be limited."
     }
 }
 
@@ -87,9 +87,9 @@ echo "Output path: $OUTPUT_DIR"
 echo ""
 
 echo "Starting Spark application in LOCAL mode..."
-echo "📊 Monitor job progress:"
-echo "  📊 Spark UI: http://localhost:4040"
-echo "  📈 Spark History: http://localhost:18080"
+echo "Monitor job progress:"
+echo "  Spark UI: http://localhost:4040"
+echo "  Spark History: http://localhost:18080"
 echo "----------------------------------------"
 
 START_TIME=$(date +%s)
@@ -116,11 +116,11 @@ echo "----------------------------------------"
 echo "Job exit status: $JOB_STATUS"
 
 if [ $JOB_STATUS -eq 0 ]; then
-    echo "🎉 Spark job completed successfully!"
+    echo "Spark job completed successfully!"
     
     # Check if output exists
     echo ""
-    echo "🔍 Checking output..."
+    echo "Checking output..."
     ls -la "$OUTPUT_DIR"/ 2>/dev/null
     
     if [ -f "$OUTPUT_DIR/part-00000" ]; then
@@ -132,19 +132,19 @@ if [ $JOB_STATUS -eq 0 ]; then
         # Count total entries
         TOTAL_ENTRIES=$(wc -l < "$OUTPUT_DIR/part-00000")
         echo ""
-        echo "📈 Total distribution entries: $TOTAL_ENTRIES"
+        echo "Total distribution entries: $TOTAL_ENTRIES"
         
         # Show output size
         OUTPUT_SIZE=$(ls -lh "$OUTPUT_DIR/part-00000" | awk '{print $5}')
-        echo "💾 Output file size: $OUTPUT_SIZE"
+        echo "Output file size: $OUTPUT_SIZE"
         
         # Show top 3 highest degrees
         echo ""
-        echo "🏆 Top 3 highest in-degrees:"
+        echo "Top 3 highest in-degrees:"
         sort -k1 -nr "$OUTPUT_DIR/part-00000" | head -3
         
     else
-        echo "⚠️ WARNING: No output part files found!"
+        echo "WARNING: No output part files found!"
         echo "Output directory contents:"
         ls -la "$OUTPUT_DIR"/ || echo "Output directory doesn't exist"
     fi
@@ -152,34 +152,34 @@ if [ $JOB_STATUS -eq 0 ]; then
     # Show comprehensive summary if exists
     if [ -f "${OUTPUT_DIR}_comprehensive_summary.txt" ]; then
         echo ""
-        echo "=== 📊 COMPREHENSIVE METRICS SUMMARY ==="
-        echo "📁 Detailed metrics: ${OUTPUT_DIR}_comprehensive_summary.txt"
+        echo "=== COMPREHENSIVE METRICS SUMMARY ==="
+        echo "Detailed metrics: ${OUTPUT_DIR}_comprehensive_summary.txt"
         echo ""
         echo "Key Performance Indicators:"
         grep "TOTAL EXECUTION TIME" "${OUTPUT_DIR}_comprehensive_summary.txt" || echo "Execution time data available in summary file"
     fi
     
     echo ""
-    echo "🎯 SPARK UI ANALYSIS LINKS:"
-    echo "  📊 Live Spark UI: http://localhost:4040"
-    echo "     • Jobs tab: Execution time breakdown"
-    echo "     • Stages tab: Task-level performance"
-    echo "     • Executors tab: Memory and CPU usage"
-    echo "     • Storage tab: RDD caching info"
-    echo "  📈 Spark History: http://localhost:18080"
-    echo "  📋 Event logs: $EVENT_LOG_DIR"
+    echo "SPARK UI ANALYSIS LINKS:"
+    echo "  Live Spark UI: http://localhost:4040"
+    echo "     Jobs tab: Execution time breakdown"
+    echo "     Stages tab: Task-level performance"
+    echo "     Executors tab: Memory and CPU usage"
+    echo "     Storage tab: RDD caching info"
+    echo "  Spark History: http://localhost:18080"
+    echo "  Event logs: $EVENT_LOG_DIR"
     echo ""
-    echo "💡 METRICS FOR HADOOP COMPARISON:"
-    echo "  ⏱️ Execution Times: Available in console output above"
-    echo "  💾 Memory Usage: Available in Spark UI Executors tab"
-    echo "  🖥️ CPU Usage: Available in Spark UI and console output"
-    echo "  📊 I/O Metrics: Available in Spark UI Stages tab"
-    echo "  📈 Task Performance: Available in Spark UI Jobs tab"
+    echo "METRICS FOR HADOOP COMPARISON:"
+    echo "  Execution Times: Available in console output above"
+    echo "  Memory Usage: Available in Spark UI Executors tab"
+    echo "  CPU Usage: Available in Spark UI and console output"
+    echo "  I/O Metrics: Available in Spark UI Stages tab"
+    echo "  Task Performance: Available in Spark UI Jobs tab"
     
 else
-    echo "❌ Spark job failed with exit code: $JOB_STATUS"
+    echo "Spark job failed with exit code: $JOB_STATUS"
     echo ""
-    echo "🛠️ Troubleshooting suggestions:"
+    echo "Troubleshooting suggestions:"
     echo "- Check if Python/PySpark is properly installed"
     echo "- Verify input file format and permissions"
     echo "- Try reducing memory: --conf spark.executor.memory=1g"
@@ -193,22 +193,22 @@ echo "Dataset: $DATASET"
 echo "Input file: $INPUT_FILE"
 echo "File size: $FILE_SIZE"
 echo "Shell execution time: $EXECUTION_TIME seconds"
-echo "Job status: $([ $JOB_STATUS -eq 0 ] && echo '✅ SUCCESS' || echo '❌ FAILED')"
+echo "Job status: $([ $JOB_STATUS -eq 0 ] && echo 'SUCCESS' || echo 'FAILED')"
 echo "End time: $(date)"
 
 echo ""
-echo "📁 Output location: $OUTPUT_DIR"
-echo "🔍 To view full results: cat $OUTPUT_DIR/part-00000"
+echo "Output location: $OUTPUT_DIR"
+echo "To view full results: cat $OUTPUT_DIR/part-00000"
 
 if [ $JOB_STATUS -eq 0 ]; then
     echo ""
-    echo "🎯 READY FOR HADOOP COMPARISON:"
-    echo "✅ Comprehensive metrics captured in both console and Spark UI"
-    echo "📊 Screenshots recommended from Spark UI at http://localhost:4040"
-    echo "📄 Detailed summary available in: ${OUTPUT_DIR}_comprehensive_summary.txt"
+    echo "READY FOR HADOOP COMPARISON:"
+    echo "Comprehensive metrics captured in both console and Spark UI"
+    echo "Screenshots recommended from Spark UI at http://localhost:4040"
+    echo "Detailed summary available in: ${OUTPUT_DIR}_comprehensive_summary.txt"
     echo ""
-    echo "📊 Spark UI: http://localhost:4040"
-    echo "📈 History: http://localhost:18080"
+    echo "Spark UI: http://localhost:4040"
+    echo "History: http://localhost:18080"
 fi
 
 echo ""

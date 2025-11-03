@@ -16,14 +16,9 @@ public class InDegreeMapper extends Mapper<LongWritable, Text, Text, IntWritable
         
         String[] nodes = line.split("\\s+");
         if (nodes.length >= 2) {
-            try {
-                Integer.parseInt(nodes[0]);
-                Integer.parseInt(nodes[1]);
-                targetNode.set(nodes[1]);
-                context.write(targetNode, one);
-            } catch (NumberFormatException e) {
-                // Skip invalid lines
-            }
+            // Remove numeric filtering - accept all valid node IDs
+            targetNode.set(nodes[1]);
+            context.write(targetNode, one);
         }
     }
 }

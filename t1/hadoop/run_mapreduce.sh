@@ -138,7 +138,7 @@ else
 fi
 
 echo "Starting MapReduce job..."
-echo "💡 TIP: Check YARN UI at http://localhost:8088 for real-time monitoring"
+echo "Check YARN UI at http://localhost:8088 for real-time monitoring"
 echo "Input: $INPUT_PATH"
 echo "Temp: $TEMP_PATH"
 echo "Output: $OUTPUT_PATH"
