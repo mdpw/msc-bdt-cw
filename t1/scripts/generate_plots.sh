@@ -411,13 +411,8 @@ def main():
             if hadoop_degrees == spark_degrees and hadoop_counts == spark_counts:
                 print("Results are IDENTICAL - Perfect computational correctness!")
             else:
-                print("Results differ - Check for processing differences")
+                print("Results differ - Check for processing differences")    
         
-        print(f"\nUse this plot in your assignment to demonstrate:")
-        print(f"   - Power-law distribution analysis")
-        print(f"   - Network topology insights")
-        print(f"   - Result verification between systems")
-        print(f"   - Professional visualization")
 
 if __name__ == "__main__":
     main()
