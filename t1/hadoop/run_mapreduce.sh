@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ubuntu-compatible MapReduce runner for local mode
+# Universal MapReduce runner for in-degree analysis
 # Usage: ./run_mapreduce.sh <dataset_name> <input_file>
 
 DATASET=$1
@@ -27,10 +27,14 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DATA_DIR="$PROJECT_ROOT/data"
 HADOOP_DIR="$PROJECT_ROOT/hadoop"
 JAR_FILE="$HADOOP_DIR/indegree-analysis.jar"
+TEMP_OUTPUT="$PROJECT_ROOT/results/$DATASET/hadoop/temp-$(date +%Y%m%d_%H%M%S)"
+FINAL_OUTPUT="$PROJECT_ROOT/results/$DATASET/hadoop/output-$(date +%Y%m%d_%H%M%S)"
 
 echo "Project root: $PROJECT_ROOT"
 echo "Data directory: $DATA_DIR"
 echo "Hadoop directory: $HADOOP_DIR"
+echo "Temp output: $TEMP_OUTPUT"
+echo "Final output: $FINAL_OUTPUT"
 echo ""
 
 # Change to hadoop directory for compilation if needed
@@ -59,7 +63,7 @@ if [ ! -f "$JAR_FILE" ]; then
         echo "Cleaning up .class files..."
         rm -f *.class
         
-        echo "✓ Compilation successful!"
+        echo "Compilation successful!"
     else
         echo "ERROR: No Java source files found in $HADOOP_DIR"
         echo "Available files:"
@@ -69,30 +73,25 @@ if [ ! -f "$JAR_FILE" ]; then
 fi
 
 # Check if data file exists
-FULL_INPUT_PATH="$DATA_DIR/$INPUT_FILE"
+FULL_INPUT_PATH="$DATA_DIR/$DATASET/$INPUT_FILE"
 if [ ! -f "$FULL_INPUT_PATH" ]; then
     echo "ERROR: Data file $FULL_INPUT_PATH not found!"
-    echo "Available files in $DATA_DIR:"
-    ls -la "$DATA_DIR"
+    echo "Available files in $DATA_DIR/$DATASET:"
+    ls -la "$DATA_DIR/$DATASET" 2>/dev/null || echo "Directory does not exist"
     exit 1
 fi
 
-echo "✓ JAR file ready: $JAR_FILE"
-echo "✓ Data file found: $FULL_INPUT_PATH"
+echo "JAR file ready: $JAR_FILE"
+echo "Data file found: $FULL_INPUT_PATH"
 
 # Get file size for reporting
 FILE_SIZE=$(ls -lh "$FULL_INPUT_PATH" | awk '{print $5}')
-echo "✓ Dataset size: $FILE_SIZE"
+echo "Dataset: $DATASET"
+echo "Dataset size: $FILE_SIZE"
 
-# Configure for local mode (no HDFS, no YARN)
-unset HADOOP_CONF_DIR
-unset CORE_CONF_fs_defaultFS
-export MAPREDUCE_FRAMEWORK_NAME=local
-export HADOOP_OPTS="-Dfs.defaultFS=file:///"
-
-# Set output directories in /tmp
-TEMP_OUTPUT="/tmp/temp-$DATASET"
-FINAL_OUTPUT="/tmp/output-$DATASET"
+# Create output directories
+mkdir -p "$(dirname "$TEMP_OUTPUT")"
+mkdir -p "$(dirname "$FINAL_OUTPUT")"
 
 # Clean previous outputs
 echo ""
@@ -100,19 +99,58 @@ echo "Cleaning previous outputs..."
 rm -rf "$TEMP_OUTPUT"
 rm -rf "$FINAL_OUTPUT"
 
-echo "Starting MapReduce job in LOCAL MODE..."
-echo "No YARN/HDFS overhead - direct execution"
-echo "Input: $FULL_INPUT_PATH"
-echo "Output: $FINAL_OUTPUT"
+# Configure for local mode (no HDFS, no YARN) or use HDFS
+if hadoop fs -ls / &> /dev/null; then
+    echo "Using HDFS mode..."
+    
+    # Use HDFS paths
+    HDFS_INPUT="/input/$DATASET/$INPUT_FILE"
+    HDFS_TEMP="/temp/$DATASET-$(date +%Y%m%d_%H%M%S)"
+    HDFS_OUTPUT="/output/$DATASET-$(date +%Y%m%d_%H%M%S)"
+    
+    # Copy input to HDFS if not exists
+    if ! hadoop fs -test -e "$HDFS_INPUT"; then
+        echo "Copying input file to HDFS..."
+        hadoop fs -mkdir -p "/input/$DATASET"
+        hadoop fs -put "$FULL_INPUT_PATH" "$HDFS_INPUT"
+    fi
+    
+    # Clean HDFS outputs
+    hadoop fs -rm -r "$HDFS_TEMP" 2>/dev/null || true
+    hadoop fs -rm -r "$HDFS_OUTPUT" 2>/dev/null || true
+    
+    INPUT_PATH="$HDFS_INPUT"
+    TEMP_PATH="$HDFS_TEMP"
+    OUTPUT_PATH="$HDFS_OUTPUT"
+    
+else
+    echo "Using local filesystem mode..."
+    
+    # Configure for local mode
+    unset HADOOP_CONF_DIR
+    unset CORE_CONF_fs_defaultFS
+    export MAPREDUCE_FRAMEWORK_NAME=local
+    export HADOOP_OPTS="-Dfs.defaultFS=file:///"
+    
+    INPUT_PATH="file://$FULL_INPUT_PATH"
+    TEMP_PATH="file://$TEMP_OUTPUT"
+    OUTPUT_PATH="file://$FINAL_OUTPUT"
+fi
+
+echo "Starting MapReduce job..."
+echo "💡 TIP: Check YARN UI at http://localhost:8088 for real-time monitoring"
+echo "Input: $INPUT_PATH"
+echo "Temp: $TEMP_PATH"
+echo "Output: $OUTPUT_PATH"
 echo "----------------------------------------"
 
 START_TIME=$(date +%s)
 
-# Run the MapReduce job with local filesystem
+# Run the MapReduce job
 hadoop jar "$JAR_FILE" InDegreeDistributionDriver \
-    "file://$FULL_INPUT_PATH" \
-    "file://$TEMP_OUTPUT" \
-    "file://$FINAL_OUTPUT"
+    "$INPUT_PATH" \
+    "$TEMP_PATH" \
+    "$OUTPUT_PATH"
 
 # Capture exit status
 JOB_STATUS=$?
@@ -123,12 +161,18 @@ echo "----------------------------------------"
 echo "Job exit status: $JOB_STATUS"
 
 if [ $JOB_STATUS -eq 0 ]; then
-    echo "✓ MapReduce job completed successfully!"
+    echo "MapReduce job completed successfully!"
+    
+    # Copy results from HDFS to local if needed
+    if hadoop fs -ls / &> /dev/null; then
+        echo "Copying results from HDFS to local filesystem..."
+        hadoop fs -get "$OUTPUT_PATH" "$FINAL_OUTPUT"
+    fi
     
     # Check if output exists
     echo ""
     echo "Checking output..."
-    ls -la "$FINAL_OUTPUT"/
+    ls -la "$FINAL_OUTPUT"/ 2>/dev/null
     
     if [ -f "$FINAL_OUTPUT/part-r-00000" ]; then
         echo ""
@@ -145,11 +189,6 @@ if [ $JOB_STATUS -eq 0 ]; then
         OUTPUT_SIZE=$(ls -lh "$FINAL_OUTPUT/part-r-00000" | awk '{print $5}')
         echo "Output file size: $OUTPUT_SIZE"
         
-        # Show summary statistics
-        echo ""
-        echo "=== PROCESSING STATISTICS ==="
-        echo "Output records generated: $TOTAL_ENTRIES unique in-degree values"
-        
         # Show top 5 most common in-degrees
         echo ""
         echo "Top 5 most common in-degrees:"
@@ -162,13 +201,14 @@ if [ $JOB_STATUS -eq 0 ]; then
     fi
     
 else
-    echo "✗ MapReduce job failed with exit code: $JOB_STATUS"
+    echo "MapReduce job failed with exit code: $JOB_STATUS"
     echo ""
     echo "Check the error messages above for details"
     echo "Common issues:"
     echo "- Java heap space (try: export HADOOP_OPTS='-Xmx2g')"
     echo "- Input file format issues"
     echo "- JAR file class path problems"
+    echo "- HDFS permissions"
 fi
 
 echo ""
@@ -178,7 +218,7 @@ echo "Input file: $INPUT_FILE"
 echo "File size: $FILE_SIZE"
 echo "Execution time: $EXECUTION_TIME seconds"
 echo "Job status: $([ $JOB_STATUS -eq 0 ] && echo 'SUCCESS' || echo 'FAILED')"
-echo "Mode: Local MapReduce (no YARN/HDFS overhead)"
+echo "Mode: $([ -n "$HDFS_INPUT" ] && echo 'HDFS' || echo 'Local filesystem')"
 echo "End time: $(date)"
 
 echo ""
