@@ -7,6 +7,8 @@
 4. Place datasets in respective folders
 5. Make sure below folder structure and files exists
 
+<img width="410" height="599" alt="image" src="https://github.com/user-attachments/assets/a6046544-6664-467f-a4cf-837295f1d11b" />
+
 ~/bigdata-assignment/
 ├── data/
 │   ├── pokec/
@@ -70,7 +72,7 @@
 
 # Create directories for all your datasets
 </br>hdfs dfs -mkdir -p /input/pokec
-</br>hdfs dfs -mkdir -p /input/eu-email  
+</br>hdfs dfs -mkdir -p /input/eu-email
 </br>hdfs dfs -mkdir -p /input/berk
 
 # Verify they're created
