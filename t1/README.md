@@ -59,9 +59,9 @@
 
 # Test Hadoop MapReduce
 # These commands copy the data files to HDFS and process no need of a manual copy
-./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
-./hadoop/run_mapreduce.sh eu-email Email-EuAll.txt
-./hadoop/run_mapreduce.sh berk web-BerkStan.txt
+\n./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
+\n./hadoop/run_mapreduce.sh eu-email Email-EuAll.txt
+\n./hadoop/run_mapreduce.sh berk web-BerkStan.txt
 
 # Manually Copy data to HDFS (Optional)
 hdfs dfs -put /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt /input/pokec/
