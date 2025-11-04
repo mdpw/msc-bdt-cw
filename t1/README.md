@@ -1,9 +1,8 @@
 1. Log into vm ubuntu
 2. Open a terminal
 3. Run below commands (one time only)
-
-    mkdir -p bigdata-assignment/{data/{pokec,eu-email,berk},hadoop,spark,scripts,results}
-    cd bigdata-assignment
+    </br>mkdir -p bigdata-assignment/{data/{pokec,eu-email,berk},hadoop,spark,scripts,results}
+    </br>cd bigdata-assignment
 
 4. Place datasets in respective folders
 5. Make sure below folder structure and files exists
@@ -44,40 +43,40 @@
 7. Execute below commands to start or stop below services
 
    cd bigdata-assignment/scripts
-   ./bigdata_services.sh start    # Start all services
-   ./bigdata_services.sh stop     # Stop all services  
-   ./bigdata_services.sh restart  # Restart all services
-   ./bigdata_services.sh status   # Show current status
+   </br>./bigdata_services.sh start    # Start all services
+   </br>./bigdata_services.sh stop     # Stop all services  
+   </br>./bigdata_services.sh restart  # Restart all services
+   </br>./bigdata_services.sh status   # Show current status
 
-    YARN ResourceManager: http://localhost:8088
-    HDFS NameNode: http://localhost:9870
-    Hadoop Job History (if running): http://localhost:19888
-    Spark Application UI: http://localhost:4040/
+    </br>YARN ResourceManager: http://localhost:8088
+    </br>HDFS NameNode: http://localhost:9870
+    </br>Hadoop Job History (if running): http://localhost:19888
+    </br>Spark Application UI: http://localhost:4040/
       
 
 # From ~/bigdata-assignment/ directory:
 
 # Test Hadoop MapReduce
 # These commands copy the data files to HDFS and process no need of a manual copy
-\n./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
-\n./hadoop/run_mapreduce.sh eu-email Email-EuAll.txt
-\n./hadoop/run_mapreduce.sh berk web-BerkStan.txt
+</br>./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
+</br>./hadoop/run_mapreduce.sh eu-email Email-EuAll.txt
+</br>./hadoop/run_mapreduce.sh berk web-BerkStan.txt
 
 # Manually Copy data to HDFS (Optional)
-hdfs dfs -put /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt /input/pokec/
-hdfs dfs -put /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt /input/eu-email/
-hdfs dfs -put /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt /input/berk/
+</br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt /input/pokec/
+</br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt /input/eu-email/
+</br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt /input/berk/
 
 
 # Create directories for all your datasets
-hdfs dfs -mkdir -p /input/pokec
-hdfs dfs -mkdir -p /input/eu-email  
-hdfs dfs -mkdir -p /input/berk
+</br>hdfs dfs -mkdir -p /input/pokec
+</br>hdfs dfs -mkdir -p /input/eu-email  
+</br>hdfs dfs -mkdir -p /input/berk
 
 # Verify they're created
-hdfs dfs -ls /input
+</br>hdfs dfs -ls /input
 
 # Test Spark  
-./spark/run_spark.sh pokec soc-pokec-relationships.txt
-./spark/run_spark.sh eu-email Email-EuAll.txt
-./spark/run_spark.sh berk web-BerkStan.txt
+</br>./spark/run_spark.sh pokec soc-pokec-relationships.txt
+</br>./spark/run_spark.sh eu-email Email-EuAll.txt
+</br>./spark/run_spark.sh berk web-BerkStan.txt
