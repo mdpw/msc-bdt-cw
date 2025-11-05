@@ -12,13 +12,6 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-echo "========================================"
-echo "HADOOP MAPREDUCE ANALYSIS: $DATASET"
-echo "========================================"
-echo "Input file: $INPUT_FILE"
-echo "Start time: $(date)"
-echo ""
-
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -27,47 +20,68 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DATA_DIR="$PROJECT_ROOT/data"
 HADOOP_DIR="$PROJECT_ROOT/hadoop"
 JAR_FILE="$HADOOP_DIR/indegree-analysis.jar"
-TEMP_OUTPUT="$PROJECT_ROOT/results/$DATASET/hadoop/temp-$(date +%Y%m%d_%H%M%S)"
-FINAL_OUTPUT="$PROJECT_ROOT/results/$DATASET/hadoop/output-$(date +%Y%m%d_%H%M%S)"
+RESULTS_DIR="$PROJECT_ROOT/results/$DATASET/hadoop"
 
-echo "Project root: $PROJECT_ROOT"
-echo "Data directory: $DATA_DIR"
-echo "Hadoop directory: $HADOOP_DIR"
-echo "Temp output: $TEMP_OUTPUT"
-echo "Final output: $FINAL_OUTPUT"
-echo ""
+# Create results directory
+mkdir -p "$RESULTS_DIR"
+
+# Create log file with timestamp
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+LOG_FILE="$RESULTS_DIR/hadoop_baseline_$TIMESTAMP.log"
+TEMP_OUTPUT="$RESULTS_DIR/temp-$TIMESTAMP"
+FINAL_OUTPUT="$RESULTS_DIR/output-$TIMESTAMP"
+
+# Function to log both to console and file
+log_both() {
+    echo "$1" | tee -a "$LOG_FILE"
+}
+
+log_both "========================================"
+log_both "HADOOP MAPREDUCE ANALYSIS: $DATASET"
+log_both "========================================"
+log_both "Input file: $INPUT_FILE"
+log_both "Start time: $(date)"
+log_both "Log file: $LOG_FILE"
+log_both ""
+
+log_both "Project root: $PROJECT_ROOT"
+log_both "Data directory: $DATA_DIR"
+log_both "Hadoop directory: $HADOOP_DIR"
+log_both "Temp output: $TEMP_OUTPUT"
+log_both "Final output: $FINAL_OUTPUT"
+log_both ""
 
 # Change to hadoop directory for compilation if needed
 cd "$HADOOP_DIR"
 
 # Check if JAR file exists, compile if needed
 if [ ! -f "$JAR_FILE" ]; then
-    echo "JAR file not found. Compiling Java files..."
+    log_both "JAR file not found. Compiling Java files..."
     
     # Check if Java source files exist
     if ls *.java 1> /dev/null 2>&1; then
         export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
         
         # Compile Java files
-        hadoop com.sun.tools.javac.Main *.java
+        hadoop com.sun.tools.javac.Main *.java 2>&1 | tee -a "$LOG_FILE"
         
         if [ $? -ne 0 ]; then
-            echo "ERROR: Compilation failed!"
+            log_both "ERROR: Compilation failed!"
             exit 1
         fi
         
         # Create JAR file
-        jar cf indegree-analysis.jar *.class
+        jar cf indegree-analysis.jar *.class 2>&1 | tee -a "$LOG_FILE"
         
         # Clean up .class files after JAR creation
-        echo "Cleaning up .class files..."
+        log_both "Cleaning up .class files..."
         rm -f *.class
         
-        echo "Compilation successful!"
+        log_both "Compilation successful!"
     else
-        echo "ERROR: No Java source files found in $HADOOP_DIR"
-        echo "Available files:"
-        ls -la "$HADOOP_DIR"
+        log_both "ERROR: No Java source files found in $HADOOP_DIR"
+        log_both "Available files:"
+        ls -la "$HADOOP_DIR" | tee -a "$LOG_FILE"
         exit 1
     fi
 fi
@@ -75,44 +89,45 @@ fi
 # Check if data file exists
 FULL_INPUT_PATH="$DATA_DIR/$DATASET/$INPUT_FILE"
 if [ ! -f "$FULL_INPUT_PATH" ]; then
-    echo "ERROR: Data file $FULL_INPUT_PATH not found!"
-    echo "Available files in $DATA_DIR/$DATASET:"
-    ls -la "$DATA_DIR/$DATASET" 2>/dev/null || echo "Directory does not exist"
+    log_both "ERROR: Data file $FULL_INPUT_PATH not found!"
+    log_both "Available files in $DATA_DIR/$DATASET:"
+    ls -la "$DATA_DIR/$DATASET" 2>/dev/null | tee -a "$LOG_FILE" || log_both "Directory does not exist"
     exit 1
 fi
 
-echo "JAR file ready: $JAR_FILE"
-echo "Data file found: $FULL_INPUT_PATH"
+log_both "JAR file ready: $JAR_FILE"
+log_both "Data file found: $FULL_INPUT_PATH"
 
 # Get file size for reporting
 FILE_SIZE=$(ls -lh "$FULL_INPUT_PATH" | awk '{print $5}')
-echo "Dataset: $DATASET"
-echo "Dataset size: $FILE_SIZE"
+FILE_SIZE_BYTES=$(ls -l "$FULL_INPUT_PATH" | awk '{print $5}')
+log_both "Dataset: $DATASET"
+log_both "Dataset size: $FILE_SIZE ($FILE_SIZE_BYTES bytes)"
 
 # Create output directories
 mkdir -p "$(dirname "$TEMP_OUTPUT")"
 mkdir -p "$(dirname "$FINAL_OUTPUT")"
 
 # Clean previous outputs
-echo ""
-echo "Cleaning previous outputs..."
+log_both ""
+log_both "Cleaning previous outputs..."
 rm -rf "$TEMP_OUTPUT"
 rm -rf "$FINAL_OUTPUT"
 
 # Configure for local mode (no HDFS, no YARN) or use HDFS
 if hadoop fs -ls / &> /dev/null; then
-    echo "Using HDFS mode..."
+    log_both "Using HDFS mode..."
     
     # Use HDFS paths
     HDFS_INPUT="/input/$DATASET/$INPUT_FILE"
-    HDFS_TEMP="/temp/$DATASET-$(date +%Y%m%d_%H%M%S)"
-    HDFS_OUTPUT="/output/$DATASET-$(date +%Y%m%d_%H%M%S)"
+    HDFS_TEMP="/temp/$DATASET-$TIMESTAMP"
+    HDFS_OUTPUT="/output/$DATASET-$TIMESTAMP"
     
     # Copy input to HDFS if not exists
     if ! hadoop fs -test -e "$HDFS_INPUT"; then
-        echo "Copying input file to HDFS..."
-        hadoop fs -mkdir -p "/input/$DATASET"
-        hadoop fs -put "$FULL_INPUT_PATH" "$HDFS_INPUT"
+        log_both "Copying input file to HDFS..."
+        hadoop fs -mkdir -p "/input/$DATASET" 2>&1 | tee -a "$LOG_FILE"
+        hadoop fs -put "$FULL_INPUT_PATH" "$HDFS_INPUT" 2>&1 | tee -a "$LOG_FILE"
     fi
     
     # Clean HDFS outputs
@@ -124,7 +139,7 @@ if hadoop fs -ls / &> /dev/null; then
     OUTPUT_PATH="$HDFS_OUTPUT"
     
 else
-    echo "Using local filesystem mode..."
+    log_both "Using local filesystem mode..."
     
     # Configure for local mode
     unset HADOOP_CONF_DIR
@@ -137,92 +152,102 @@ else
     OUTPUT_PATH="file://$FINAL_OUTPUT"
 fi
 
-echo "Starting MapReduce job..."
-echo "Check YARN UI at http://localhost:8088 for real-time monitoring"
-echo "Input: $INPUT_PATH"
-echo "Temp: $TEMP_PATH"
-echo "Output: $OUTPUT_PATH"
-echo "----------------------------------------"
+log_both "Starting MapReduce job..."
+log_both "Check YARN UI at http://localhost:8088 for real-time monitoring"
+log_both "Input: $INPUT_PATH"
+log_both "Temp: $TEMP_PATH"
+log_both "Output: $OUTPUT_PATH"
+log_both "----------------------------------------"
 
 START_TIME=$(date +%s)
 
-# Run the MapReduce job
-hadoop jar "$JAR_FILE" InDegreeDistributionDriver \
-    "$INPUT_PATH" \
-    "$TEMP_PATH" \
-    "$OUTPUT_PATH"
+# Run the MapReduce job with full logging
+{
+    hadoop jar "$JAR_FILE" InDegreeDistributionDriver \
+        "$INPUT_PATH" \
+        "$TEMP_PATH" \
+        "$OUTPUT_PATH"
+} 2>&1 | tee -a "$LOG_FILE"
 
 # Capture exit status
-JOB_STATUS=$?
+JOB_STATUS=${PIPESTATUS[0]}
 END_TIME=$(date +%s)
 EXECUTION_TIME=$((END_TIME - START_TIME))
 
-echo "----------------------------------------"
-echo "Job exit status: $JOB_STATUS"
+log_both "----------------------------------------"
+log_both "Job exit status: $JOB_STATUS"
 
 if [ $JOB_STATUS -eq 0 ]; then
-    echo "MapReduce job completed successfully!"
+    log_both "MapReduce job completed successfully!"
     
     # Copy results from HDFS to local if needed
     if hadoop fs -ls / &> /dev/null; then
-        echo "Copying results from HDFS to local filesystem..."
-        hadoop fs -get "$OUTPUT_PATH" "$FINAL_OUTPUT"
+        log_both "Copying results from HDFS to local filesystem..."
+        hadoop fs -get "$OUTPUT_PATH" "$FINAL_OUTPUT" 2>&1 | tee -a "$LOG_FILE"
     fi
     
     # Check if output exists
-    echo ""
-    echo "Checking output..."
-    ls -la "$FINAL_OUTPUT"/ 2>/dev/null
+    log_both ""
+    log_both "Checking output..."
+    ls -la "$FINAL_OUTPUT"/ 2>/dev/null | tee -a "$LOG_FILE"
     
     if [ -f "$FINAL_OUTPUT/part-r-00000" ]; then
-        echo ""
-        echo "=== RESULTS ==="
-        echo "Sample distribution (first 10):"
-        head -10 "$FINAL_OUTPUT/part-r-00000"
+        log_both ""
+        log_both "=== RESULTS ==="
+        log_both "Sample distribution (first 10):"
+        head -10 "$FINAL_OUTPUT/part-r-00000" | tee -a "$LOG_FILE"
         
         # Count total entries
         TOTAL_ENTRIES=$(wc -l < "$FINAL_OUTPUT/part-r-00000")
-        echo ""
-        echo "Total distribution entries: $TOTAL_ENTRIES"
+        log_both ""
+        log_both "Total distribution entries: $TOTAL_ENTRIES"
         
         # Show output size
         OUTPUT_SIZE=$(ls -lh "$FINAL_OUTPUT/part-r-00000" | awk '{print $5}')
-        echo "Output file size: $OUTPUT_SIZE"
+        log_both "Output file size: $OUTPUT_SIZE"
         
         # Show top 5 most common in-degrees
-        echo ""
-        echo "Top 5 most common in-degrees:"
-        sort -k2 -nr "$FINAL_OUTPUT/part-r-00000" | head -5
+        log_both ""
+        log_both "Top 5 most common in-degrees:"
+        sort -k2 -nr "$FINAL_OUTPUT/part-r-00000" | head -5 | tee -a "$LOG_FILE"
         
     else
-        echo "WARNING: No output part files found!"
-        echo "Output directory contents:"
-        ls -la "$FINAL_OUTPUT"/ || echo "Output directory doesn't exist"
+        log_both "WARNING: No output part files found!"
+        log_both "Output directory contents:"
+        ls -la "$FINAL_OUTPUT"/ | tee -a "$LOG_FILE" || log_both "Output directory doesn't exist"
     fi
     
 else
-    echo "MapReduce job failed with exit code: $JOB_STATUS"
-    echo ""
-    echo "Check the error messages above for details"
-    echo "Common issues:"
-    echo "- Java heap space (try: export HADOOP_OPTS='-Xmx2g')"
-    echo "- Input file format issues"
-    echo "- JAR file class path problems"
-    echo "- HDFS permissions"
+    log_both "MapReduce job failed with exit code: $JOB_STATUS"
+    log_both ""
+    log_both "Check the error messages above for details"
+    log_both "Common issues:"
+    log_both "- Java heap space (try: export HADOOP_OPTS='-Xmx2g')"
+    log_both "- Input file format issues"
+    log_both "- JAR file class path problems"
+    log_both "- HDFS permissions"
 fi
 
-echo ""
-echo "=== EXECUTION SUMMARY ==="
-echo "Dataset: $DATASET"
-echo "Input file: $INPUT_FILE"  
-echo "File size: $FILE_SIZE"
-echo "Execution time: $EXECUTION_TIME seconds"
-echo "Job status: $([ $JOB_STATUS -eq 0 ] && echo 'SUCCESS' || echo 'FAILED')"
-echo "Mode: $([ -n "$HDFS_INPUT" ] && echo 'HDFS' || echo 'Local filesystem')"
-echo "End time: $(date)"
+log_both ""
+log_both "=== EXECUTION SUMMARY ==="
+log_both "Dataset: $DATASET"
+log_both "Input file: $INPUT_FILE"
+log_both "File size: $FILE_SIZE ($FILE_SIZE_BYTES bytes)"
+log_both "Execution time: $EXECUTION_TIME seconds"
+log_both "Job status: $([ $JOB_STATUS -eq 0 ] && echo 'SUCCESS' || echo 'FAILED')"
+log_both "Mode: $([ -n "$HDFS_INPUT" ] && echo 'HDFS' || echo 'Local filesystem')"
+log_both "End time: $(date)"
+
+log_both ""
+log_both "Output location: $FINAL_OUTPUT/part-r-00000"
+log_both "To view full results: cat $FINAL_OUTPUT/part-r-00000"
+
+log_both ""
+log_both "LOG FILES SAVED:"
+log_both "  Complete log: $LOG_FILE"
+log_both "  Results: $FINAL_OUTPUT/"
+log_both "========================================"
 
 echo ""
-echo "Output location: $FINAL_OUTPUT/part-r-00000"
-echo "To view full results: cat $FINAL_OUTPUT/part-r-00000"
-echo ""
-echo "========================================"
+echo "IMPORTANT: Complete log saved to $LOG_FILE"
+echo "Even if terminal gets stuck, check this file for full results!"

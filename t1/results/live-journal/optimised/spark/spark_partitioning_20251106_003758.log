@@ -1,0 +1,171 @@
+========================================
+SPARK - PARTITIONING OPTIMIZATION
+========================================
+Dataset: live-journal
+Input: soc-LiveJournal1.txt
+Start time: Thu Nov  6 12:37:58 AM +0530 2025
+Log file: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/spark_partitioning_20251106_003758.log
+
+Data file: 1.1G (1080598042 bytes)
+
+Running PARTITIONING OPTIMIZED Spark...
+=== SPARK OPTIMIZATION: PARTITIONING ===
+Optimized data partitioning for better parallelism
+Conservative memory allocation
+No caching to avoid memory constraints
+=========================================
+Output: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/output-20251106_003758
+Spark UI: http://localhost:4040
+----------------------------------------
+25/11/06 00:38:02 WARN Utils: Your hostname, dinesh-VirtualBox resolves to a loopback address: 127.0.1.1; using 192.168.1.38 instead (on interface enp0s3)
+25/11/06 00:38:02 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+==========================================
+SPARK PARTITIONING OPTIMIZATION - LIVE-JOURNAL
+==========================================
+=== SPARK OPTIMIZATION: PARTITIONING ===
+Optimized data partitioning for better parallelism
+8 partitions for optimal CPU utilization
+Reduced memory footprint per partition
+========================================
+
+Reading from: /home/dinesh/bigdata-assignment/data/live-journal/soc-LiveJournal1.txt
+Output: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/output-20251106_003758
+Start time: 2025-11-06 00:38:02
+25/11/06 00:38:03 INFO SparkContext: Running Spark version 3.5.1
+25/11/06 00:38:03 INFO SparkContext: OS info Linux, 6.8.0-86-generic, amd64
+25/11/06 00:38:03 INFO SparkContext: Java version 11.0.28
+25/11/06 00:38:03 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/11/06 00:38:03 INFO ResourceUtils: ==============================================================
+25/11/06 00:38:03 INFO ResourceUtils: No custom resources configured for spark.driver.
+25/11/06 00:38:03 INFO ResourceUtils: ==============================================================
+25/11/06 00:38:03 INFO SparkContext: Submitted application: PartitionOptimized-live-journal-1762369682
+25/11/06 00:38:03 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+25/11/06 00:38:03 INFO ResourceProfile: Limiting resource is cpu
+25/11/06 00:38:03 INFO ResourceProfileManager: Added ResourceProfile id: 0
+25/11/06 00:38:03 INFO SecurityManager: Changing view acls to: dinesh
+25/11/06 00:38:03 INFO SecurityManager: Changing modify acls to: dinesh
+25/11/06 00:38:03 INFO SecurityManager: Changing view acls groups to: 
+25/11/06 00:38:03 INFO SecurityManager: Changing modify acls groups to: 
+25/11/06 00:38:03 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: dinesh; groups with view permissions: EMPTY; users with modify permissions: dinesh; groups with modify permissions: EMPTY
+25/11/06 00:38:03 INFO Utils: Successfully started service 'sparkDriver' on port 36205.
+25/11/06 00:38:03 INFO SparkEnv: Registering MapOutputTracker
+25/11/06 00:38:04 INFO SparkEnv: Registering BlockManagerMaster
+25/11/06 00:38:04 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+25/11/06 00:38:04 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+25/11/06 00:38:04 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+25/11/06 00:38:04 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-c941b80e-196f-428e-8423-495e11f0092b
+25/11/06 00:38:04 INFO MemoryStore: MemoryStore started with capacity 127.2 MiB
+25/11/06 00:38:04 INFO SparkEnv: Registering OutputCommitCoordinator
+25/11/06 00:38:04 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+25/11/06 00:38:04 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+25/11/06 00:38:04 INFO Executor: Starting executor ID driver on host 192.168.1.38
+25/11/06 00:38:04 INFO Executor: OS info Linux, 6.8.0-86-generic, amd64
+25/11/06 00:38:04 INFO Executor: Java version 11.0.28
+25/11/06 00:38:04 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+25/11/06 00:38:04 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@2e6064ef for default.
+25/11/06 00:38:04 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 42559.
+25/11/06 00:38:04 INFO NettyBlockTransferService: Server created on 192.168.1.38:42559
+25/11/06 00:38:04 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+25/11/06 00:38:04 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.38, 42559, None)
+25/11/06 00:38:04 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.38:42559 with 127.2 MiB RAM, BlockManagerId(driver, 192.168.1.38, 42559, None)
+25/11/06 00:38:04 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.38, 42559, None)
+25/11/06 00:38:04 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.38, 42559, None)
+25/11/06 00:38:05 INFO SingleEventLogFileWriter: Logging events to hdfs://localhost:9000/spark-logs/local-1762369684575.inprogress
+Spark initialized with partitioning optimization
+Spark UI: http://localhost:4040
+
+Loading data with optimal partitioning...
+   Data loaded in 0.37 seconds
+Processing edges with optimal partitioning...
+   Processed 68,993,773 edges with 8 partitions
+   Edge processing completed in 108.90 seconds
+Calculating in-degrees...
+   Calculated in-degrees for 4,489,240 unique nodes
+   In-degrees calculated in 85.15 seconds
+Computing distribution...
+   Distribution has 1569 unique degree values
+   Distribution computed in 29.77 seconds
+Saving results...
+   Results saved in 4.02 seconds
+
+==================================================
+PARTITIONING OPTIMIZATION RESULTS
+==================================================
+TOTAL EXECUTION TIME: 228.21 seconds
+Dataset: live-journal
+Total Edges: 68,993,773
+Unique Nodes: 4,489,240
+Distribution Entries: 1569
+
+OPTIMIZATION APPLIED:
+Partitioning: 16 input partitions → 8 processing partitions
+Memory: Conservative allocation (1GB executor, 512MB driver)
+Parallelism: 8-way parallel processing
+No caching: Avoids memory constraints
+
+Sample results:
+   Degree 1: 1,014,392 nodes
+   Degree 2: 553,207 nodes
+   Degree 3: 359,549 nodes
+   Degree 4: 264,944 nodes
+   Degree 5: 208,763 nodes
+
+Results saved to: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/output-20251106_003758
+Spark UI: http://localhost:4040
+==================================================
+----------------------------------------
+Job exit status: 0
+✓ PARTITIONING OPTIMIZED Spark completed successfully!
+Execution time: 240 seconds
+
+=== RESULTS ===
+Sample distribution (first 10):
+(1, 1014392)
+(2, 553207)
+(3, 359549)
+(4, 264944)
+(5, 208763)
+(6, 171471)
+(7, 144484)
+(8, 124284)
+(9, 109053)
+(10, 96523)
+
+Total distribution entries: 206
+Output file size: 2.3K
+
+Top 5 highest in-degrees:
+(99, 1764)
+(98, 1755)
+(97, 1871)
+(96, 1849)
+(95, 1937)
+
+Full results saved to: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/output-20251106_003758/part-00000
+
+=== PARTITIONING OPTIMIZATION SUMMARY ===
+Dataset: live-journal
+Input file: soc-LiveJournal1.txt
+File size: 1.1G (1080598042 bytes)
+Execution time: 240 seconds
+Job status: SUCCESS
+Mode: PARTITIONING OPTIMIZED Local
+End time: Thu Nov  6 12:41:59 AM +0530 2025
+
+OPTIMIZATION DETAILS:
+  Applied: Data partitioning optimization
+  Memory: Conservative (1GB executor, 512MB driver)
+  Partitions: 16 input → 8 processing partitions
+  Parallelism: 8-way parallel processing
+  Strategy: No caching to avoid memory constraints
+  Status: SUCCESS
+
+COMPARISON TARGET:
+  Baseline Spark: 206 seconds
+  Caching Optimized: 264 seconds (memory constrained)
+  This run: 240 seconds
+
+LOG FILES SAVED:
+  Complete log: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/spark_partitioning_20251106_003758.log
+  Results: /home/dinesh/bigdata-assignment/results/live-journal/spark-partitioning-optimized/output-20251106_003758/
+========================================

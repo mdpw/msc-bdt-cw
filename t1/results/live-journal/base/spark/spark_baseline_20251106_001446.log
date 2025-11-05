@@ -1,0 +1,291 @@
+========================================
+SPARK IN-DEGREE ANALYSIS (LOCAL MODE): live-journal
+========================================
+Input file: soc-LiveJournal1.txt
+Start time: Thu Nov  6 12:14:46 AM +0530 2025
+Log file: /home/dinesh/bigdata-assignment/results/live-journal/spark/spark_baseline_20251106_001446.log
+
+Project root: /home/dinesh/bigdata-assignment
+Data directory: /home/dinesh/bigdata-assignment/data
+Output directory: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446
+
+Execution mode: LOCAL (forced)
+ERROR: Final Spark script not found at /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis_final.py
+Looking for uploaded script...
+Using Spark script: /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis.py
+Checking Python dependencies...
+Event log directory: /tmp/spark-events
+
+Dataset: live-journal
+Dataset size: 1.1G (1080598042 bytes)
+Input path: /home/dinesh/bigdata-assignment/data/live-journal/soc-LiveJournal1.txt
+Output path: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446
+
+Starting Spark application in LOCAL mode...
+Monitor job progress:
+  Spark UI: http://localhost:4040
+  Spark History: http://localhost:18080
+----------------------------------------
+25/11/06 00:14:49 WARN Utils: Your hostname, dinesh-VirtualBox resolves to a loopback address: 127.0.1.1; using 192.168.1.38 instead (on interface enp0s3)
+25/11/06 00:14:49 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+==========================================
+SPARK IN-DEGREE ANALYSIS - LIVE-JOURNAL DATASET
+==========================================
+Reading from: /home/dinesh/bigdata-assignment/data/live-journal/soc-LiveJournal1.txt
+Output: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446
+Start time: 2025-11-06 00:14:50
+Input file verified: 1.01 GB
+25/11/06 00:14:51 INFO SparkContext: Running Spark version 3.5.1
+25/11/06 00:14:51 INFO SparkContext: OS info Linux, 6.8.0-86-generic, amd64
+25/11/06 00:14:51 INFO SparkContext: Java version 11.0.28
+25/11/06 00:14:51 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/11/06 00:14:51 INFO ResourceUtils: ==============================================================
+25/11/06 00:14:51 INFO ResourceUtils: No custom resources configured for spark.driver.
+25/11/06 00:14:51 INFO ResourceUtils: ==============================================================
+25/11/06 00:14:51 INFO SparkContext: Submitted application: InDegreeAnalysis-live-journal-1762368290
+25/11/06 00:14:51 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 2048, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+25/11/06 00:14:51 INFO ResourceProfile: Limiting resource is cpu
+25/11/06 00:14:51 INFO ResourceProfileManager: Added ResourceProfile id: 0
+25/11/06 00:14:51 INFO SecurityManager: Changing view acls to: dinesh
+25/11/06 00:14:51 INFO SecurityManager: Changing modify acls to: dinesh
+25/11/06 00:14:51 INFO SecurityManager: Changing view acls groups to: 
+25/11/06 00:14:51 INFO SecurityManager: Changing modify acls groups to: 
+25/11/06 00:14:51 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: dinesh; groups with view permissions: EMPTY; users with modify permissions: dinesh; groups with modify permissions: EMPTY
+25/11/06 00:14:51 INFO Utils: Successfully started service 'sparkDriver' on port 38011.
+25/11/06 00:14:51 INFO SparkEnv: Registering MapOutputTracker
+25/11/06 00:14:51 INFO SparkEnv: Registering BlockManagerMaster
+25/11/06 00:14:51 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+25/11/06 00:14:51 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+25/11/06 00:14:51 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+25/11/06 00:14:52 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-61567511-e51e-4fcc-a9f7-d37149196440
+25/11/06 00:14:52 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+25/11/06 00:14:52 INFO SparkEnv: Registering OutputCommitCoordinator
+25/11/06 00:14:52 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+25/11/06 00:14:52 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+25/11/06 00:14:52 INFO Executor: Starting executor ID driver on host 192.168.1.38
+25/11/06 00:14:52 INFO Executor: OS info Linux, 6.8.0-86-generic, amd64
+25/11/06 00:14:52 INFO Executor: Java version 11.0.28
+25/11/06 00:14:52 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+25/11/06 00:14:52 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@71e4608b for default.
+25/11/06 00:14:52 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 33573.
+25/11/06 00:14:52 INFO NettyBlockTransferService: Server created on 192.168.1.38:33573
+25/11/06 00:14:52 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+25/11/06 00:14:52 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.38, 33573, None)
+25/11/06 00:14:52 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.38:33573 with 434.4 MiB RAM, BlockManagerId(driver, 192.168.1.38, 33573, None)
+25/11/06 00:14:52 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.38, 33573, None)
+25/11/06 00:14:52 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.38, 33573, None)
+25/11/06 00:14:52 INFO SingleEventLogFileWriter: Logging events to file:/tmp/spark-events/local-1762368292462.inprogress
+Spark initialized in LOCAL mode
+Spark UI: http://localhost:4040
+Application ID: local-1762368292462
+
+Loading data...
+   Data loaded in 1.11 seconds
+Calculating in-degrees...
+   In-degrees calculated in 0.39 seconds
+Computing distribution...
+   Distribution computed in 2m 15.56s
+Calculating statistics...
+   Statistics calculated in 1m 6.15s
+Saving results...
+   Results saved in 2.94 seconds
+
+==================================================
+COMPREHENSIVE PERFORMANCE METRICS
+==================================================
+
+EXECUTION TIME BREAKDOWN:
+   Job 1 (Data Loading): 1.11 seconds (1111 ms)
+   Job 2 (Calculate In-Degrees): 0.39 seconds (386 ms)
+   Job 3 (Calculate Distribution): 2m 15.56s (135564 ms)
+   Job 4 (Calculate Statistics): 1m 6.15s (66152 ms)
+   Job 5 (Save Results): 2.94 seconds (2935 ms)
+   TOTAL EXECUTION TIME: 3m 26.15s (206149 ms)
+
+SYSTEM RESOURCE METRICS:
+   CPU Usage: 38.4%
+   Process Memory (RSS): 46.78 MB
+   Process Memory (VMS): 391.21 MB
+   Memory Usage: 1.2%
+   Total System Memory: 3.82 GB
+   Available System Memory: 1.08 GB
+
+DATA PROCESSING STATISTICS:
+   Dataset: live-journal
+   Input File Size: 1.01 GB
+   Total Edges Processed: 68,993,773
+   Unique Nodes: 4,489,240
+   Distribution Entries: 1569
+   Application ID: local-1762368292462
+
+In-degree distribution (first 10):
+   Degree 1: 1,014,392 nodes
+   Degree 2: 553,207 nodes
+   Degree 3: 359,549 nodes
+   Degree 4: 264,944 nodes
+   Degree 5: 208,763 nodes
+   Degree 6: 171,471 nodes
+   Degree 7: 144,484 nodes
+   Degree 8: 124,284 nodes
+   Degree 9: 109,053 nodes
+   Degree 10: 96,523 nodes
+
+Top 5 highest in-degrees:
+   Node 10029: 13,906 in-degree
+   Node 8737: 13,434 in-degree
+   Node 2914: 12,422 in-degree
+   Node 18964: 11,839 in-degree
+   Node 18963: 11,215 in-degree
+
+Results saved to: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446
+Comprehensive summary: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446_comprehensive_summary.txt
+
+SPARK UI METRICS AVAILABLE:
+   Live Spark UI: http://localhost:4040
+   Spark History: http://localhost:18080 (after completion)
+   Detailed job/stage/task metrics available in UI
+
+FOR HADOOP COMPARISON:
+   Total Execution Time: 3m 26.15s (206149 ms)
+   Job-by-job breakdown matches Hadoop MapReduce structure
+   Take screenshots of Spark UI for side-by-side comparison
+==================================================
+----------------------------------------
+Job exit status: 0
+Spark job completed successfully!
+
+Checking output...
+total 276
+drwxr-xr-x 2 dinesh dinesh 4096 Nov  6 00:18 .
+drwxrwxr-x 3 dinesh dinesh 4096 Nov  6 00:18 ..
+-rw-r--r-- 1 dinesh dinesh  663 Nov  6 00:18 part-00000
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00000.crc
+-rw-r--r-- 1 dinesh dinesh  521 Nov  6 00:18 part-00001
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00001.crc
+-rw-r--r-- 1 dinesh dinesh  546 Nov  6 00:18 part-00002
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00002.crc
+-rw-r--r-- 1 dinesh dinesh  627 Nov  6 00:18 part-00003
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00003.crc
+-rw-r--r-- 1 dinesh dinesh  648 Nov  6 00:18 part-00004
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00004.crc
+-rw-r--r-- 1 dinesh dinesh  377 Nov  6 00:18 part-00005
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00005.crc
+-rw-r--r-- 1 dinesh dinesh  560 Nov  6 00:18 part-00006
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00006.crc
+-rw-r--r-- 1 dinesh dinesh  420 Nov  6 00:18 part-00007
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00007.crc
+-rw-r--r-- 1 dinesh dinesh  460 Nov  6 00:18 part-00008
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00008.crc
+-rw-r--r-- 1 dinesh dinesh  430 Nov  6 00:18 part-00009
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00009.crc
+-rw-r--r-- 1 dinesh dinesh  454 Nov  6 00:18 part-00010
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00010.crc
+-rw-r--r-- 1 dinesh dinesh  528 Nov  6 00:18 part-00011
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00011.crc
+-rw-r--r-- 1 dinesh dinesh  472 Nov  6 00:18 part-00012
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00012.crc
+-rw-r--r-- 1 dinesh dinesh  400 Nov  6 00:18 part-00013
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00013.crc
+-rw-r--r-- 1 dinesh dinesh  461 Nov  6 00:18 part-00014
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00014.crc
+-rw-r--r-- 1 dinesh dinesh  378 Nov  6 00:18 part-00015
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00015.crc
+-rw-r--r-- 1 dinesh dinesh  397 Nov  6 00:18 part-00016
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00016.crc
+-rw-r--r-- 1 dinesh dinesh  369 Nov  6 00:18 part-00017
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00017.crc
+-rw-r--r-- 1 dinesh dinesh  378 Nov  6 00:18 part-00018
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00018.crc
+-rw-r--r-- 1 dinesh dinesh  396 Nov  6 00:18 part-00019
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00019.crc
+-rw-r--r-- 1 dinesh dinesh  354 Nov  6 00:18 part-00020
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00020.crc
+-rw-r--r-- 1 dinesh dinesh  450 Nov  6 00:18 part-00021
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00021.crc
+-rw-r--r-- 1 dinesh dinesh  420 Nov  6 00:18 part-00022
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00022.crc
+-rw-r--r-- 1 dinesh dinesh  550 Nov  6 00:18 part-00023
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00023.crc
+-rw-r--r-- 1 dinesh dinesh  450 Nov  6 00:18 part-00024
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00024.crc
+-rw-r--r-- 1 dinesh dinesh  430 Nov  6 00:18 part-00025
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00025.crc
+-rw-r--r-- 1 dinesh dinesh  530 Nov  6 00:18 part-00026
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00026.crc
+-rw-r--r-- 1 dinesh dinesh  610 Nov  6 00:18 part-00027
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00027.crc
+-rw-r--r-- 1 dinesh dinesh  400 Nov  6 00:18 part-00028
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00028.crc
+-rw-r--r-- 1 dinesh dinesh  560 Nov  6 00:18 part-00029
+-rw-r--r-- 1 dinesh dinesh   16 Nov  6 00:18 .part-00029.crc
+-rw-r--r-- 1 dinesh dinesh  490 Nov  6 00:18 part-00030
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00030.crc
+-rw-r--r-- 1 dinesh dinesh  480 Nov  6 00:18 part-00031
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00031.crc
+-rw-r--r-- 1 dinesh dinesh  435 Nov  6 00:18 part-00032
+-rw-r--r-- 1 dinesh dinesh   12 Nov  6 00:18 .part-00032.crc
+-rw-r--r-- 1 dinesh dinesh    0 Nov  6 00:18 _SUCCESS
+-rw-r--r-- 1 dinesh dinesh    8 Nov  6 00:18 ._SUCCESS.crc
+
+=== RESULTS VERIFICATION ===
+Sample distribution (first 5):
+(1, 1014392)
+(2, 553207)
+(3, 359549)
+(4, 264944)
+(5, 208763)
+
+Total distribution entries: 56
+Output file size: 663
+
+Top 3 highest in-degrees:
+(9, 109053)
+(8, 124284)
+(7, 144484)
+
+=== COMPREHENSIVE METRICS SUMMARY ===
+Detailed metrics: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446_comprehensive_summary.txt
+
+Key Performance Indicators:
+TOTAL EXECUTION TIME: 3m 26.15s (206149 ms)
+
+SPARK UI ANALYSIS LINKS:
+  Live Spark UI: http://localhost:4040
+     Jobs tab: Execution time breakdown
+     Stages tab: Task-level performance
+     Executors tab: Memory and CPU usage
+     Storage tab: RDD caching info
+  Spark History: http://localhost:18080
+  Event logs: /tmp/spark-events
+
+METRICS FOR HADOOP COMPARISON:
+  Execution Times: Available in console output above
+  Memory Usage: Available in Spark UI Executors tab
+  CPU Usage: Available in Spark UI and console output
+  I/O Metrics: Available in Spark UI Stages tab
+  Task Performance: Available in Spark UI Jobs tab
+
+=== FINAL EXECUTION SUMMARY ===
+Mode: LOCAL
+Dataset: live-journal
+Input file: soc-LiveJournal1.txt
+File size: 1.1G (1080598042 bytes)
+Shell execution time: 226 seconds
+Job status: SUCCESS
+End time: Thu Nov  6 12:18:32 AM +0530 2025
+
+Output location: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446
+To view full results: cat /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446/part-00000
+
+READY FOR HADOOP COMPARISON:
+Comprehensive metrics captured in both console and Spark UI
+Screenshots recommended from Spark UI at http://localhost:4040
+Detailed summary available in: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446_comprehensive_summary.txt
+
+Spark UI: http://localhost:4040
+History: http://localhost:18080
+
+LOG FILES SAVED:
+  Complete log: /home/dinesh/bigdata-assignment/results/live-journal/spark/spark_baseline_20251106_001446.log
+  Results: /home/dinesh/bigdata-assignment/results/live-journal/spark/final-output-20251106_001446/
+========================================

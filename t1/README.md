@@ -83,3 +83,11 @@
 Generate Plots
 ./generate_plots.sh <dataset dir name>
 </>ex: ./generate_plots.sh pokec
+
+
+./hadoop/run_mapreduce.sh live-journal soc-LiveJournal1.txt
+./spark/run_spark.sh live-journal soc-LiveJournal1.txt
+
+./hadoop/run_hadoop_optimized.sh live-journal soc-LiveJournal1.txt
+./spark/run_spark_partitioning_optimized.sh live-journal soc-LiveJournal1.txt
+./generate_plots.sh live-journal
