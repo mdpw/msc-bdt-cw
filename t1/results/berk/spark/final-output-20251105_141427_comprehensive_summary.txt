@@ -1,0 +1,28 @@
+SPARK IN-DEGREE ANALYSIS - COMPREHENSIVE SUMMARY
+================================================
+Execution Mode: LOCAL
+Dataset: berk
+Application: InDegreeAnalysis-berk-1762332271
+Application ID: local-1762332272289
+Input File: /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt
+Input File Size: 105.03 MB
+Output Directory: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+Start Time: 2025-11-05 14:14:32
+
+EXECUTION TIME BREAKDOWN:
+Job 1 (Data Loading): 0.56 seconds (564 ms)
+Job 2 (Calculate In-Degrees): 0.15 seconds (150 ms)
+Job 3 (Calculate Distribution): 6.33 seconds (6329 ms)
+Job 4 (Calculate Statistics): 6.02 seconds (6016 ms)
+Job 5 (Save Results): 0.79 seconds (791 ms)
+TOTAL EXECUTION TIME: 13.85 seconds (13851 ms)
+
+DATA PROCESSING RESULTS:
+Total Edges: 7,600,595
+Unique Nodes: 617,094
+Distribution Entries: 925
+
+SYSTEM METRICS:
+Process Memory (RSS): 46.82 MB
+Process Memory (VMS): 391.66 MB
+Total System Memory: 3.82 GB

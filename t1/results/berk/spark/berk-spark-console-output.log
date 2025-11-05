@@ -1,0 +1,230 @@
+dinesh@dinesh-VirtualBox:~/bigdata-assignment$ ./spark/run_spark.sh berk web-BerkStan.txt
+========================================
+SPARK IN-DEGREE ANALYSIS (LOCAL MODE): berk
+========================================
+Input file: web-BerkStan.txt
+Start time: Wed Nov  5 02:14:27 PM +0530 2025
+
+Project root: /home/dinesh/bigdata-assignment
+Data directory: /home/dinesh/bigdata-assignment/data
+Output directory: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+
+Execution mode: LOCAL (forced)
+ERROR: Final Spark script not found at /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis_final.py
+Looking for uploaded script...
+Using Spark script: /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis.py
+Checking Python dependencies...
+Event log directory: /tmp/spark-events
+
+Dataset: berk
+Dataset size: 106M
+Input path: /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt
+Output path: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+
+Starting Spark application in LOCAL mode...
+Monitor job progress:
+  Spark UI: http://localhost:4040
+  Spark History: http://localhost:18080
+----------------------------------------
+25/11/05 14:14:30 WARN Utils: Your hostname, dinesh-VirtualBox resolves to a loopback address: 127.0.1.1; using 192.168.1.38 instead (on interface enp0s3)
+25/11/05 14:14:30 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+==========================================
+SPARK IN-DEGREE ANALYSIS - BERK DATASET
+==========================================
+Reading from: /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt
+Output: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+Start time: 2025-11-05 14:14:31
+Input file verified: 105.03 MB
+25/11/05 14:14:31 INFO SparkContext: Running Spark version 3.5.1
+25/11/05 14:14:31 INFO SparkContext: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 14:14:31 INFO SparkContext: Java version 11.0.28
+25/11/05 14:14:31 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/11/05 14:14:31 INFO ResourceUtils: ==============================================================
+25/11/05 14:14:31 INFO ResourceUtils: No custom resources configured for spark.driver.
+25/11/05 14:14:31 INFO ResourceUtils: ==============================================================
+25/11/05 14:14:31 INFO SparkContext: Submitted application: InDegreeAnalysis-berk-1762332271
+25/11/05 14:14:31 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 2048, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+25/11/05 14:14:31 INFO ResourceProfile: Limiting resource is cpu
+25/11/05 14:14:31 INFO ResourceProfileManager: Added ResourceProfile id: 0
+25/11/05 14:14:31 INFO SecurityManager: Changing view acls to: dinesh
+25/11/05 14:14:31 INFO SecurityManager: Changing modify acls to: dinesh
+25/11/05 14:14:31 INFO SecurityManager: Changing view acls groups to: 
+25/11/05 14:14:31 INFO SecurityManager: Changing modify acls groups to: 
+25/11/05 14:14:31 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: dinesh; groups with view permissions: EMPTY; users with modify permissions: dinesh; groups with modify permissions: EMPTY
+25/11/05 14:14:31 INFO Utils: Successfully started service 'sparkDriver' on port 40243.
+25/11/05 14:14:31 INFO SparkEnv: Registering MapOutputTracker
+25/11/05 14:14:31 INFO SparkEnv: Registering BlockManagerMaster
+25/11/05 14:14:31 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+25/11/05 14:14:31 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+25/11/05 14:14:31 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+25/11/05 14:14:31 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-fcba259f-ad8d-419e-905b-4e59d1c41a71
+25/11/05 14:14:31 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+25/11/05 14:14:31 INFO SparkEnv: Registering OutputCommitCoordinator
+25/11/05 14:14:32 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+25/11/05 14:14:32 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+25/11/05 14:14:32 INFO Executor: Starting executor ID driver on host 192.168.1.38
+25/11/05 14:14:32 INFO Executor: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 14:14:32 INFO Executor: Java version 11.0.28
+25/11/05 14:14:32 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+25/11/05 14:14:32 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@45d73bea for default.
+25/11/05 14:14:32 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38175.
+25/11/05 14:14:32 INFO NettyBlockTransferService: Server created on 192.168.1.38:38175
+25/11/05 14:14:32 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+25/11/05 14:14:32 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.38, 38175, None)
+25/11/05 14:14:32 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.38:38175 with 434.4 MiB RAM, BlockManagerId(driver, 192.168.1.38, 38175, None)
+25/11/05 14:14:32 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.38, 38175, None)
+25/11/05 14:14:32 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.38, 38175, None)
+25/11/05 14:14:32 INFO SingleEventLogFileWriter: Logging events to file:/tmp/spark-events/local-1762332272289.inprogress
+Spark initialized in LOCAL mode
+Spark UI: http://localhost:4040
+Application ID: local-1762332272289
+
+Loading data...
+   Data loaded in 0.56 seconds
+Calculating in-degrees...
+   In-degrees calculated in 0.15 seconds
+Computing distribution...
+   Distribution computed in 6.33 seconds
+Calculating statistics...
+   Statistics calculated in 6.02 seconds
+Saving results...
+   Results saved in 0.79 seconds
+
+==================================================
+COMPREHENSIVE PERFORMANCE METRICS
+==================================================
+
+EXECUTION TIME BREAKDOWN:
+   Job 1 (Data Loading): 0.56 seconds (564 ms)
+   Job 2 (Calculate In-Degrees): 0.15 seconds (150 ms)
+   Job 3 (Calculate Distribution): 6.33 seconds (6329 ms)
+   Job 4 (Calculate Statistics): 6.02 seconds (6016 ms)
+   Job 5 (Save Results): 0.79 seconds (791 ms)
+   TOTAL EXECUTION TIME: 13.85 seconds (13851 ms)
+
+SYSTEM RESOURCE METRICS:
+   CPU Usage: 32.3%
+   Process Memory (RSS): 46.82 MB
+   Process Memory (VMS): 391.66 MB
+   Memory Usage: 1.2%
+   Total System Memory: 3.82 GB
+   Available System Memory: 581.88 MB
+
+DATA PROCESSING STATISTICS:
+   Dataset: berk
+   Input File Size: 105.03 MB
+   Total Edges Processed: 7,600,595
+   Unique Nodes: 617,094
+   Distribution Entries: 925
+   Application ID: local-1762332272289
+
+In-degree distribution (first 10):
+   Degree 1: 183,981 nodes
+   Degree 2: 129,085 nodes
+   Degree 3: 76,580 nodes
+   Degree 4: 50,134 nodes
+   Degree 5: 33,042 nodes
+   Degree 6: 21,885 nodes
+   Degree 7: 17,428 nodes
+   Degree 8: 9,478 nodes
+   Degree 9: 7,116 nodes
+   Degree 10: 7,338 nodes
+
+Top 5 highest in-degrees:
+   Node 438238: 84,208 in-degree
+   Node 401873: 48,205 in-degree
+   Node 184094: 44,290 in-degree
+   Node 768: 44,101 in-degree
+   Node 927: 44,067 in-degree
+
+Results saved to: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+Comprehensive summary: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427_comprehensive_summary.txt
+
+SPARK UI METRICS AVAILABLE:
+   Live Spark UI: http://localhost:4040
+   Spark History: http://localhost:18080 (after completion)
+   Detailed job/stage/task metrics available in UI
+
+FOR HADOOP COMPARISON:
+   Total Execution Time: 13.85 seconds (13851 ms)
+   Job-by-job breakdown matches Hadoop MapReduce structure
+   Take screenshots of Spark UI for side-by-side comparison
+==================================================
+----------------------------------------
+Job exit status: 0
+Spark job completed successfully!
+
+Checking output...
+total 44
+drwxr-xr-x 2 dinesh dinesh 4096 Nov  5 14:14 .
+drwxrwxr-x 3 dinesh dinesh 4096 Nov  5 14:14 ..
+-rw-r--r-- 1 dinesh dinesh 2318 Nov  5 14:14 part-00000
+-rw-r--r-- 1 dinesh dinesh   28 Nov  5 14:14 .part-00000.crc
+-rw-r--r-- 1 dinesh dinesh 2380 Nov  5 14:14 part-00001
+-rw-r--r-- 1 dinesh dinesh   28 Nov  5 14:14 .part-00001.crc
+-rw-r--r-- 1 dinesh dinesh 1998 Nov  5 14:14 part-00002
+-rw-r--r-- 1 dinesh dinesh   24 Nov  5 14:14 .part-00002.crc
+-rw-r--r-- 1 dinesh dinesh 2180 Nov  5 14:14 part-00003
+-rw-r--r-- 1 dinesh dinesh   28 Nov  5 14:14 .part-00003.crc
+-rw-r--r-- 1 dinesh dinesh    0 Nov  5 14:14 _SUCCESS
+-rw-r--r-- 1 dinesh dinesh    8 Nov  5 14:14 ._SUCCESS.crc
+
+=== RESULTS VERIFICATION ===
+Sample distribution (first 5):
+(1, 183981)
+(2, 129085)
+(3, 76580)
+(4, 50134)
+(5, 33042)
+
+Total distribution entries: 234
+Output file size: 2.3K
+
+Top 3 highest in-degrees:
+(99, 69)
+(98, 62)
+(97, 64)
+
+=== COMPREHENSIVE METRICS SUMMARY ===
+Detailed metrics: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427_comprehensive_summary.txt
+
+Key Performance Indicators:
+TOTAL EXECUTION TIME: 13.85 seconds (13851 ms)
+
+SPARK UI ANALYSIS LINKS:
+  Live Spark UI: http://localhost:4040
+     Jobs tab: Execution time breakdown
+     Stages tab: Task-level performance
+     Executors tab: Memory and CPU usage
+     Storage tab: RDD caching info
+  Spark History: http://localhost:18080
+  Event logs: /tmp/spark-events
+
+METRICS FOR HADOOP COMPARISON:
+  Execution Times: Available in console output above
+  Memory Usage: Available in Spark UI Executors tab
+  CPU Usage: Available in Spark UI and console output
+  I/O Metrics: Available in Spark UI Stages tab
+  Task Performance: Available in Spark UI Jobs tab
+
+=== FINAL EXECUTION SUMMARY ===
+Mode: LOCAL
+Dataset: berk
+Input file: web-BerkStan.txt
+File size: 106M
+Shell execution time: 21 seconds
+Job status: SUCCESS
+End time: Wed Nov  5 02:14:48 PM +0530 2025
+
+Output location: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427
+To view full results: cat /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427/part-00000
+
+READY FOR HADOOP COMPARISON:
+Comprehensive metrics captured in both console and Spark UI
+Screenshots recommended from Spark UI at http://localhost:4040
+Detailed summary available in: /home/dinesh/bigdata-assignment/results/berk/spark/final-output-20251105_141427_comprehensive_summary.txt
+
+Spark UI: http://localhost:4040
+History: http://localhost:18080
+
+========================================

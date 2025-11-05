@@ -1,0 +1,28 @@
+SPARK IN-DEGREE ANALYSIS - COMPREHENSIVE SUMMARY
+================================================
+Execution Mode: LOCAL
+Dataset: eu-email
+Application: InDegreeAnalysis-eu-email-1762329487
+Application ID: local-1762329488815
+Input File: /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt
+Input File Size: 4.77 MB
+Output Directory: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+Start Time: 2025-11-05 13:28:09
+
+EXECUTION TIME BREAKDOWN:
+Job 1 (Data Loading): 0.75 seconds (747 ms)
+Job 2 (Calculate In-Degrees): 0.23 seconds (225 ms)
+Job 3 (Calculate Distribution): 2.02 seconds (2019 ms)
+Job 4 (Calculate Statistics): 0.70 seconds (705 ms)
+Job 5 (Save Results): 0.34 seconds (343 ms)
+TOTAL EXECUTION TIME: 4.04 seconds (4040 ms)
+
+DATA PROCESSING RESULTS:
+Total Edges: 420,045
+Unique Nodes: 74,660
+Distribution Entries: 518
+
+SYSTEM METRICS:
+Process Memory (RSS): 46.70 MB
+Process Memory (VMS): 391.21 MB
+Total System Memory: 3.82 GB

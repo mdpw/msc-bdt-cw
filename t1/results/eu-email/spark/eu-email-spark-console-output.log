@@ -1,0 +1,226 @@
+dinesh@dinesh-VirtualBox:~/bigdata-assignment$ ./spark/run_spark.sh eu-email Email-EuAll.txt
+========================================
+SPARK IN-DEGREE ANALYSIS (LOCAL MODE): eu-email
+========================================
+Input file: Email-EuAll.txt
+Start time: Wed Nov  5 01:28:03 PM +0530 2025
+
+Project root: /home/dinesh/bigdata-assignment
+Data directory: /home/dinesh/bigdata-assignment/data
+Output directory: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+
+Execution mode: LOCAL (forced)
+ERROR: Final Spark script not found at /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis_final.py
+Looking for uploaded script...
+Using Spark script: /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis.py
+Checking Python dependencies...
+Event log directory: /tmp/spark-events
+
+Dataset: eu-email
+Dataset size: 4.8M
+Input path: /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt
+Output path: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+
+Starting Spark application in LOCAL mode...
+Monitor job progress:
+  Spark UI: http://localhost:4040
+  Spark History: http://localhost:18080
+----------------------------------------
+25/11/05 13:28:06 WARN Utils: Your hostname, dinesh-VirtualBox resolves to a loopback address: 127.0.1.1; using 192.168.1.38 instead (on interface enp0s3)
+25/11/05 13:28:06 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+==========================================
+SPARK IN-DEGREE ANALYSIS - EU-EMAIL DATASET
+==========================================
+Reading from: /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt
+Output: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+Start time: 2025-11-05 13:28:07
+Input file verified: 4.77 MB
+25/11/05 13:28:07 INFO SparkContext: Running Spark version 3.5.1
+25/11/05 13:28:07 INFO SparkContext: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 13:28:07 INFO SparkContext: Java version 11.0.28
+25/11/05 13:28:07 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/11/05 13:28:07 INFO ResourceUtils: ==============================================================
+25/11/05 13:28:07 INFO ResourceUtils: No custom resources configured for spark.driver.
+25/11/05 13:28:07 INFO ResourceUtils: ==============================================================
+25/11/05 13:28:07 INFO SparkContext: Submitted application: InDegreeAnalysis-eu-email-1762329487
+25/11/05 13:28:07 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 2048, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+25/11/05 13:28:07 INFO ResourceProfile: Limiting resource is cpu
+25/11/05 13:28:07 INFO ResourceProfileManager: Added ResourceProfile id: 0
+25/11/05 13:28:07 INFO SecurityManager: Changing view acls to: dinesh
+25/11/05 13:28:07 INFO SecurityManager: Changing modify acls to: dinesh
+25/11/05 13:28:07 INFO SecurityManager: Changing view acls groups to: 
+25/11/05 13:28:07 INFO SecurityManager: Changing modify acls groups to: 
+25/11/05 13:28:07 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: dinesh; groups with view permissions: EMPTY; users with modify permissions: dinesh; groups with modify permissions: EMPTY
+25/11/05 13:28:08 INFO Utils: Successfully started service 'sparkDriver' on port 35521.
+25/11/05 13:28:08 INFO SparkEnv: Registering MapOutputTracker
+25/11/05 13:28:08 INFO SparkEnv: Registering BlockManagerMaster
+25/11/05 13:28:08 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+25/11/05 13:28:08 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+25/11/05 13:28:08 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+25/11/05 13:28:08 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-976fdfbd-85d7-488b-ad16-35e5197ae97c
+25/11/05 13:28:08 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+25/11/05 13:28:08 INFO SparkEnv: Registering OutputCommitCoordinator
+25/11/05 13:28:08 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+25/11/05 13:28:08 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+25/11/05 13:28:08 INFO Executor: Starting executor ID driver on host 192.168.1.38
+25/11/05 13:28:08 INFO Executor: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 13:28:08 INFO Executor: Java version 11.0.28
+25/11/05 13:28:08 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+25/11/05 13:28:08 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@3a088f30 for default.
+25/11/05 13:28:08 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 35359.
+25/11/05 13:28:08 INFO NettyBlockTransferService: Server created on 192.168.1.38:35359
+25/11/05 13:28:08 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+25/11/05 13:28:08 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.38, 35359, None)
+25/11/05 13:28:08 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.38:35359 with 434.4 MiB RAM, BlockManagerId(driver, 192.168.1.38, 35359, None)
+25/11/05 13:28:08 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.38, 35359, None)
+25/11/05 13:28:08 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.38, 35359, None)
+25/11/05 13:28:09 INFO SingleEventLogFileWriter: Logging events to file:/tmp/spark-events/local-1762329488815.inprogress
+Spark initialized in LOCAL mode
+Spark UI: http://localhost:4040
+Application ID: local-1762329488815
+
+Loading data...
+   Data loaded in 0.75 seconds
+Calculating in-degrees...
+   In-degrees calculated in 0.23 seconds
+Computing distribution...
+   Distribution computed in 2.02 seconds
+Calculating statistics...
+   Statistics calculated in 0.70 seconds
+Saving results...
+   Results saved in 0.34 seconds
+
+==================================================
+COMPREHENSIVE PERFORMANCE METRICS
+==================================================
+
+EXECUTION TIME BREAKDOWN:
+   Job 1 (Data Loading): 0.75 seconds (747 ms)
+   Job 2 (Calculate In-Degrees): 0.23 seconds (225 ms)
+   Job 3 (Calculate Distribution): 2.02 seconds (2019 ms)
+   Job 4 (Calculate Statistics): 0.70 seconds (705 ms)
+   Job 5 (Save Results): 0.34 seconds (343 ms)
+   TOTAL EXECUTION TIME: 4.04 seconds (4040 ms)
+
+SYSTEM RESOURCE METRICS:
+   CPU Usage: 34.7%
+   Process Memory (RSS): 46.70 MB
+   Process Memory (VMS): 391.21 MB
+   Memory Usage: 1.2%
+   Total System Memory: 3.82 GB
+   Available System Memory: 732.61 MB
+
+DATA PROCESSING STATISTICS:
+   Dataset: eu-email
+   Input File Size: 4.77 MB
+   Total Edges Processed: 420,045
+   Unique Nodes: 74,660
+   Distribution Entries: 518
+   Application ID: local-1762329488815
+
+In-degree distribution (first 10):
+   Degree 1: 61,936 nodes
+   Degree 2: 6,769 nodes
+   Degree 3: 2,012 nodes
+   Degree 4: 917 nodes
+   Degree 5: 520 nodes
+   Degree 6: 283 nodes
+   Degree 7: 210 nodes
+   Degree 8: 166 nodes
+   Degree 9: 121 nodes
+   Degree 10: 93 nodes
+
+Top 5 highest in-degrees:
+   Node 179170: 7,631 in-degree
+   Node 422: 6,249 in-degree
+   Node 30: 5,949 in-degree
+   Node 72: 4,306 in-degree
+   Node 298: 3,945 in-degree
+
+Results saved to: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+Comprehensive summary: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803_comprehensive_summary.txt
+
+SPARK UI METRICS AVAILABLE:
+   Live Spark UI: http://localhost:4040
+   Spark History: http://localhost:18080 (after completion)
+   Detailed job/stage/task metrics available in UI
+
+FOR HADOOP COMPARISON:
+   Total Execution Time: 4.04 seconds (4040 ms)
+   Job-by-job breakdown matches Hadoop MapReduce structure
+   Take screenshots of Spark UI for side-by-side comparison
+==================================================
+----------------------------------------
+Job exit status: 0
+Spark job completed successfully!
+
+Checking output...
+total 28
+drwxr-xr-x 2 dinesh dinesh 4096 Nov  5 13:28 .
+drwxrwxr-x 3 dinesh dinesh 4096 Nov  5 13:28 ..
+-rw-r--r-- 1 dinesh dinesh 2370 Nov  5 13:28 part-00000
+-rw-r--r-- 1 dinesh dinesh   28 Nov  5 13:28 .part-00000.crc
+-rw-r--r-- 1 dinesh dinesh 2277 Nov  5 13:28 part-00001
+-rw-r--r-- 1 dinesh dinesh   28 Nov  5 13:28 .part-00001.crc
+-rw-r--r-- 1 dinesh dinesh    0 Nov  5 13:28 _SUCCESS
+-rw-r--r-- 1 dinesh dinesh    8 Nov  5 13:28 ._SUCCESS.crc
+
+=== RESULTS VERIFICATION ===
+Sample distribution (first 5):
+(1, 61936)
+(2, 6769)
+(3, 2012)
+(4, 917)
+(5, 520)
+
+Total distribution entries: 270
+Output file size: 2.4K
+
+Top 3 highest in-degrees:
+(99, 6)
+(98, 5)
+(97, 3)
+
+=== COMPREHENSIVE METRICS SUMMARY ===
+Detailed metrics: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803_comprehensive_summary.txt
+
+Key Performance Indicators:
+TOTAL EXECUTION TIME: 4.04 seconds (4040 ms)
+
+SPARK UI ANALYSIS LINKS:
+  Live Spark UI: http://localhost:4040
+     Jobs tab: Execution time breakdown
+     Stages tab: Task-level performance
+     Executors tab: Memory and CPU usage
+     Storage tab: RDD caching info
+  Spark History: http://localhost:18080
+  Event logs: /tmp/spark-events
+
+METRICS FOR HADOOP COMPARISON:
+  Execution Times: Available in console output above
+  Memory Usage: Available in Spark UI Executors tab
+  CPU Usage: Available in Spark UI and console output
+  I/O Metrics: Available in Spark UI Stages tab
+  Task Performance: Available in Spark UI Jobs tab
+
+=== FINAL EXECUTION SUMMARY ===
+Mode: LOCAL
+Dataset: eu-email
+Input file: Email-EuAll.txt
+File size: 4.8M
+Shell execution time: 11 seconds
+Job status: SUCCESS
+End time: Wed Nov  5 01:28:14 PM +0530 2025
+
+Output location: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803
+To view full results: cat /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803/part-00000
+
+READY FOR HADOOP COMPARISON:
+Comprehensive metrics captured in both console and Spark UI
+Screenshots recommended from Spark UI at http://localhost:4040
+Detailed summary available in: /home/dinesh/bigdata-assignment/results/eu-email/spark/final-output-20251105_132803_comprehensive_summary.txt
+
+Spark UI: http://localhost:4040
+History: http://localhost:18080
+
+========================================

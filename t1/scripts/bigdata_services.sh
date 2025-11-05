@@ -110,11 +110,26 @@ start_services() {
     
     # Start Spark History Server
     print_status "Starting Spark History Server..."
-    start-history-server.sh >/dev/null 2>&1
+    
+    # Create events directory if it doesn't exist
+    mkdir -p /tmp/spark-events 2>/dev/null
+    
+    # Try to find and start Spark History Server
+    if command -v start-history-server.sh >/dev/null 2>&1; then
+        start-history-server.sh >/dev/null 2>&1
+    elif [ -n "$SPARK_HOME" ] && [ -f "$SPARK_HOME/sbin/start-history-server.sh" ]; then
+        $SPARK_HOME/sbin/start-history-server.sh >/dev/null 2>&1
+    elif [ -f "/opt/spark/sbin/start-history-server.sh" ]; then
+        /opt/spark/sbin/start-history-server.sh >/dev/null 2>&1
+    else
+        print_warning "Spark History Server script not found. Please check SPARK_HOME or PATH."
+        return
+    fi
+    
     if wait_for_service "HistoryServer" "18080"; then
         print_success "Spark History Server started"
     else
-        print_warning "Spark History Server may not have started"
+        print_warning "Spark History Server may not have started. Check logs in /tmp/spark-*"
     fi
     
     print_success "All services startup completed!"
@@ -126,7 +141,18 @@ stop_services() {
     
     # Stop Spark History Server
     print_status "Stopping Spark History Server..."
-    stop-history-server.sh >/dev/null 2>&1
+    
+    # Try to find and stop Spark History Server
+    if command -v stop-history-server.sh >/dev/null 2>&1; then
+        stop-history-server.sh >/dev/null 2>&1
+    elif [ -n "$SPARK_HOME" ] && [ -f "$SPARK_HOME/sbin/stop-history-server.sh" ]; then
+        $SPARK_HOME/sbin/stop-history-server.sh >/dev/null 2>&1
+    elif [ -f "/opt/spark/sbin/stop-history-server.sh" ]; then
+        /opt/spark/sbin/stop-history-server.sh >/dev/null 2>&1
+    else
+        print_warning "Spark History Server stop script not found."
+    fi
+    
     if wait_for_service "HistoryServer" "18080" "stop"; then
         print_success "Spark History Server stopped"
     else

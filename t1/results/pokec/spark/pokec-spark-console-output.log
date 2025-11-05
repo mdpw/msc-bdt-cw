@@ -1,0 +1,248 @@
+dinesh@dinesh-VirtualBox:~/bigdata-assignment$ ./spark/run_spark.sh pokec soc-pokec-relationships.txt
+========================================
+SPARK IN-DEGREE ANALYSIS (LOCAL MODE): pokec
+========================================
+Input file: soc-pokec-relationships.txt
+Start time: Wed Nov  5 12:39:21 PM +0530 2025
+
+Project root: /home/dinesh/bigdata-assignment
+Data directory: /home/dinesh/bigdata-assignment/data
+Output directory: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+
+Execution mode: LOCAL (forced)
+ERROR: Final Spark script not found at /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis_final.py
+Looking for uploaded script...
+Using Spark script: /home/dinesh/bigdata-assignment/spark/spark_indegree_analysis.py
+Checking Python dependencies...
+Event log directory: /tmp/spark-events
+
+Dataset: pokec
+Dataset size: 405M
+Input path: /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt
+Output path: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+
+Starting Spark application in LOCAL mode...
+Monitor job progress:
+  Spark UI: http://localhost:4040
+  Spark History: http://localhost:18080
+----------------------------------------
+25/11/05 12:39:24 WARN Utils: Your hostname, dinesh-VirtualBox resolves to a loopback address: 127.0.1.1; using 192.168.1.38 instead (on interface enp0s3)
+25/11/05 12:39:24 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+==========================================
+SPARK IN-DEGREE ANALYSIS - POKEC DATASET
+==========================================
+Reading from: /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt
+Output: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+Start time: 2025-11-05 12:39:25
+Input file verified: 404.30 MB
+25/11/05 12:39:25 INFO SparkContext: Running Spark version 3.5.1
+25/11/05 12:39:25 INFO SparkContext: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 12:39:25 INFO SparkContext: Java version 11.0.28
+25/11/05 12:39:25 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/11/05 12:39:26 INFO ResourceUtils: ==============================================================
+25/11/05 12:39:26 INFO ResourceUtils: No custom resources configured for spark.driver.
+25/11/05 12:39:26 INFO ResourceUtils: ==============================================================
+25/11/05 12:39:26 INFO SparkContext: Submitted application: InDegreeAnalysis-pokec-1762326565
+25/11/05 12:39:26 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 2048, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+25/11/05 12:39:26 INFO ResourceProfile: Limiting resource is cpu
+25/11/05 12:39:26 INFO ResourceProfileManager: Added ResourceProfile id: 0
+25/11/05 12:39:26 INFO SecurityManager: Changing view acls to: dinesh
+25/11/05 12:39:26 INFO SecurityManager: Changing modify acls to: dinesh
+25/11/05 12:39:26 INFO SecurityManager: Changing view acls groups to: 
+25/11/05 12:39:26 INFO SecurityManager: Changing modify acls groups to: 
+25/11/05 12:39:26 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: dinesh; groups with view permissions: EMPTY; users with modify permissions: dinesh; groups with modify permissions: EMPTY
+25/11/05 12:39:26 INFO Utils: Successfully started service 'sparkDriver' on port 38057.
+25/11/05 12:39:26 INFO SparkEnv: Registering MapOutputTracker
+25/11/05 12:39:26 INFO SparkEnv: Registering BlockManagerMaster
+25/11/05 12:39:26 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+25/11/05 12:39:26 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+25/11/05 12:39:26 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+25/11/05 12:39:26 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-cf626617-9d75-4846-81ca-203bac8b639c
+25/11/05 12:39:26 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+25/11/05 12:39:26 INFO SparkEnv: Registering OutputCommitCoordinator
+25/11/05 12:39:27 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+25/11/05 12:39:27 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+25/11/05 12:39:27 INFO Executor: Starting executor ID driver on host 192.168.1.38
+25/11/05 12:39:27 INFO Executor: OS info Linux, 6.8.0-86-generic, amd64
+25/11/05 12:39:27 INFO Executor: Java version 11.0.28
+25/11/05 12:39:27 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+25/11/05 12:39:27 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@4ddf0336 for default.
+25/11/05 12:39:27 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38607.
+25/11/05 12:39:27 INFO NettyBlockTransferService: Server created on 192.168.1.38:38607
+25/11/05 12:39:27 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+25/11/05 12:39:27 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 192.168.1.38, 38607, None)
+25/11/05 12:39:27 INFO BlockManagerMasterEndpoint: Registering block manager 192.168.1.38:38607 with 434.4 MiB RAM, BlockManagerId(driver, 192.168.1.38, 38607, None)
+25/11/05 12:39:27 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 192.168.1.38, 38607, None)
+25/11/05 12:39:27 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 192.168.1.38, 38607, None)
+25/11/05 12:39:28 INFO SingleEventLogFileWriter: Logging events to file:/tmp/spark-events/local-1762326567493.inprogress
+Spark initialized in LOCAL mode
+Spark UI: http://localhost:4040
+Application ID: local-1762326567493
+
+Loading data...
+   Data loaded in 0.89 seconds
+Calculating in-degrees...
+   In-degrees calculated in 0.19 seconds
+Computing distribution...
+   Distribution computed in 1m 34.54s
+Calculating statistics...
+   Statistics calculated in 37.14 seconds
+Saving results...
+   Results saved in 2.41 seconds
+
+==================================================
+COMPREHENSIVE PERFORMANCE METRICS
+==================================================
+
+EXECUTION TIME BREAKDOWN:
+   Job 1 (Data Loading): 0.89 seconds (886 ms)
+   Job 2 (Calculate In-Degrees): 0.19 seconds (188 ms)
+   Job 3 (Calculate Distribution): 1m 34.54s (94537 ms)
+   Job 4 (Calculate Statistics): 37.14 seconds (37142 ms)
+   Job 5 (Save Results): 2.41 seconds (2409 ms)
+   TOTAL EXECUTION TIME: 2m 15.17s (135168 ms)
+
+SYSTEM RESOURCE METRICS:
+   CPU Usage: 69.4%
+   Process Memory (RSS): 22.56 MB
+   Process Memory (VMS): 391.21 MB
+   Memory Usage: 0.6%
+   Total System Memory: 3.82 GB
+   Available System Memory: 819.20 MB
+
+DATA PROCESSING STATISTICS:
+   Dataset: pokec
+   Input File Size: 404.30 MB
+   Total Edges Processed: 30,622,564
+   Unique Nodes: 1,519,452
+   Distribution Entries: 535
+   Application ID: local-1762326567493
+
+In-degree distribution (first 10):
+   Degree 1: 205,341 nodes
+   Degree 2: 132,176 nodes
+   Degree 3: 97,093 nodes
+   Degree 4: 78,058 nodes
+   Degree 5: 65,203 nodes
+   Degree 6: 56,744 nodes
+   Degree 7: 49,174 nodes
+   Degree 8: 44,230 nodes
+   Degree 9: 39,937 nodes
+   Degree 10: 36,825 nodes
+
+Top 5 highest in-degrees:
+   Node 5935: 13,733 in-degree
+   Node 5867: 8,215 in-degree
+   Node 1891: 7,613 in-degree
+   Node 6228: 4,855 in-degree
+   Node 1830: 2,910 in-degree
+
+Results saved to: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+Comprehensive summary: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921_comprehensive_summary.txt
+
+SPARK UI METRICS AVAILABLE:
+   Live Spark UI: http://localhost:4040
+   Spark History: http://localhost:18080 (after completion)
+   Detailed job/stage/task metrics available in UI
+
+FOR HADOOP COMPARISON:
+   Total Execution Time: 2m 15.17s (135168 ms)
+   Job-by-job breakdown matches Hadoop MapReduce structure
+   Take screenshots of Spark UI for side-by-side comparison
+==================================================
+----------------------------------------
+Job exit status: 0
+Spark job completed successfully!
+
+Checking output...
+total 116
+drwxr-xr-x 2 dinesh dinesh 4096 Nov  5 12:41 .
+drwxr-xr-x 3 dinesh dinesh 4096 Nov  5 12:41 ..
+-rw-r--r-- 1 dinesh dinesh  510 Nov  5 12:41 part-00000
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00000.crc
+-rw-r--r-- 1 dinesh dinesh  462 Nov  5 12:41 part-00001
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00001.crc
+-rw-r--r-- 1 dinesh dinesh  563 Nov  5 12:41 part-00002
+-rw-r--r-- 1 dinesh dinesh   16 Nov  5 12:41 .part-00002.crc
+-rw-r--r-- 1 dinesh dinesh  374 Nov  5 12:41 part-00003
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00003.crc
+-rw-r--r-- 1 dinesh dinesh  506 Nov  5 12:41 part-00004
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00004.crc
+-rw-r--r-- 1 dinesh dinesh  480 Nov  5 12:41 part-00005
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00005.crc
+-rw-r--r-- 1 dinesh dinesh  408 Nov  5 12:41 part-00006
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00006.crc
+-rw-r--r-- 1 dinesh dinesh  355 Nov  5 12:41 part-00007
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00007.crc
+-rw-r--r-- 1 dinesh dinesh  378 Nov  5 12:41 part-00008
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00008.crc
+-rw-r--r-- 1 dinesh dinesh  252 Nov  5 12:41 part-00009
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00009.crc
+-rw-r--r-- 1 dinesh dinesh  396 Nov  5 12:41 part-00010
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00010.crc
+-rw-r--r-- 1 dinesh dinesh  315 Nov  5 12:41 part-00011
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00011.crc
+-rw-r--r-- 1 dinesh dinesh  350 Nov  5 12:41 part-00012
+-rw-r--r-- 1 dinesh dinesh   12 Nov  5 12:41 .part-00012.crc
+-rw-r--r-- 1 dinesh dinesh    0 Nov  5 12:41 _SUCCESS
+-rw-r--r-- 1 dinesh dinesh    8 Nov  5 12:41 ._SUCCESS.crc
+
+=== RESULTS VERIFICATION ===
+Sample distribution (first 5):
+(1, 205341)
+(2, 132176)
+(3, 97093)
+(4, 78058)
+(5, 65203)
+
+Total distribution entries: 44
+Output file size: 510
+
+Top 3 highest in-degrees:
+(9, 39937)
+(8, 44230)
+(7, 49174)
+
+=== COMPREHENSIVE METRICS SUMMARY ===
+Detailed metrics: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921_comprehensive_summary.txt
+
+Key Performance Indicators:
+TOTAL EXECUTION TIME: 2m 15.17s (135168 ms)
+
+SPARK UI ANALYSIS LINKS:
+  Live Spark UI: http://localhost:4040
+     Jobs tab: Execution time breakdown
+     Stages tab: Task-level performance
+     Executors tab: Memory and CPU usage
+     Storage tab: RDD caching info
+  Spark History: http://localhost:18080
+  Event logs: /tmp/spark-events
+
+METRICS FOR HADOOP COMPARISON:
+  Execution Times: Available in console output above
+  Memory Usage: Available in Spark UI Executors tab
+  CPU Usage: Available in Spark UI and console output
+  I/O Metrics: Available in Spark UI Stages tab
+  Task Performance: Available in Spark UI Jobs tab
+
+=== FINAL EXECUTION SUMMARY ===
+Mode: LOCAL
+Dataset: pokec
+Input file: soc-pokec-relationships.txt
+File size: 405M
+Shell execution time: 154 seconds
+Job status: SUCCESS
+End time: Wed Nov  5 12:41:55 PM +0530 2025
+
+Output location: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+To view full results: cat /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921/part-00000
+
+READY FOR HADOOP COMPARISON:
+Comprehensive metrics captured in both console and Spark UI
+Screenshots recommended from Spark UI at http://localhost:4040
+Detailed summary available in: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921_comprehensive_summary.txt
+
+Spark UI: http://localhost:4040
+History: http://localhost:18080
+
+========================================

@@ -57,18 +57,10 @@
       
 
 # From ~/bigdata-assignment/ directory:
-
-# Test Hadoop MapReduce
-# These commands copy the data files to HDFS and process no need of a manual copy
-</br>./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
-</br>./hadoop/run_mapreduce.sh eu-email Email-EuAll.txt
-</br>./hadoop/run_mapreduce.sh berk web-BerkStan.txt
-
 # Manually Copy data to HDFS (Optional)
 </br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt /input/pokec/
 </br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/eu-email/Email-EuAll.txt /input/eu-email/
 </br>hdfs dfs -put /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt /input/berk/
-
 
 # Create directories for all your datasets
 </br>hdfs dfs -mkdir -p /input/pokec
@@ -78,7 +70,16 @@
 # Verify they're created
 </br>hdfs dfs -ls /input
 
-# Test Spark  
-</br>./spark/run_spark.sh pokec soc-pokec-relationships.txt
-</br>./spark/run_spark.sh eu-email Email-EuAll.txt
-</br>./spark/run_spark.sh berk web-BerkStan.txt
+# Experiment
+## Test Hadoop MapReduce and Spark for each dataset
+## These commands copy the data files to HDFS and process no need of a manual copy
+## For each dataset...
+</br>./hadoop/run_mapreduce.sh <dataset dir name> <datset file name>
+</br>ex: ./hadoop/run_mapreduce.sh pokec soc-pokec-relationships.txt
+
+</br>./spark/run_spark.sh <dataset dir name> <datset file name>
+</br>ex: ./spark/run_spark.sh pokec soc-pokec-relationships.txt
+
+Generate Plots
+./generate_plots.sh <dataset dir name>
+</>ex: ./generate_plots.sh pokec

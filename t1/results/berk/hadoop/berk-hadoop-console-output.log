@@ -1,0 +1,235 @@
+dinesh@dinesh-VirtualBox:~/bigdata-assignment$ ./hadoop/run_mapreduce.sh berk web-BerkStan.txt
+========================================
+HADOOP MAPREDUCE ANALYSIS: berk
+========================================
+Input file: web-BerkStan.txt
+Start time: Wed Nov  5 02:11:28 PM +0530 2025
+
+Project root: /home/dinesh/bigdata-assignment
+Data directory: /home/dinesh/bigdata-assignment/data
+Hadoop directory: /home/dinesh/bigdata-assignment/hadoop
+Temp output: /home/dinesh/bigdata-assignment/results/berk/hadoop/temp-20251105_141128
+Final output: /home/dinesh/bigdata-assignment/results/berk/hadoop/output-20251105_141128
+
+JAR file ready: /home/dinesh/bigdata-assignment/hadoop/indegree-analysis.jar
+Data file found: /home/dinesh/bigdata-assignment/data/berk/web-BerkStan.txt
+Dataset: berk
+Dataset size: 106M
+
+Cleaning previous outputs...
+Using HDFS mode...
+Starting MapReduce job...
+Check YARN UI at http://localhost:8088 for real-time monitoring
+Input: /input/berk/web-BerkStan.txt
+Temp: /temp/berk-20251105_141130
+Output: /output/berk-20251105_141130
+----------------------------------------
+=== STARTING MAPREDUCE JOB 1: Calculate In-Degrees ===
+2025-11-05 14:11:36,236 INFO client.DefaultNoHARMFailoverProxyProvider: Connecting to ResourceManager at /0.0.0.0:8032
+2025-11-05 14:11:36,481 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+2025-11-05 14:11:36,513 INFO mapreduce.JobResourceUploader: Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/dinesh/.staging/job_1762319679353_0005
+2025-11-05 14:11:36,724 INFO input.FileInputFormat: Total input files to process : 1
+2025-11-05 14:11:36,816 INFO mapreduce.JobSubmitter: number of splits:1
+2025-11-05 14:11:36,980 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1762319679353_0005
+2025-11-05 14:11:36,980 INFO mapreduce.JobSubmitter: Executing with tokens: []
+2025-11-05 14:11:37,137 INFO conf.Configuration: resource-types.xml not found
+2025-11-05 14:11:37,137 INFO resource.ResourceUtils: Unable to find 'resource-types.xml'.
+2025-11-05 14:11:37,224 INFO impl.YarnClientImpl: Submitted application application_1762319679353_0005
+2025-11-05 14:11:37,253 INFO mapreduce.Job: The url to track the job: http://dinesh-VirtualBox:8088/proxy/application_1762319679353_0005/
+2025-11-05 14:11:37,254 INFO mapreduce.Job: Running job: job_1762319679353_0005
+2025-11-05 14:11:42,415 INFO mapreduce.Job: Job job_1762319679353_0005 running in uber mode : false
+2025-11-05 14:11:42,416 INFO mapreduce.Job:  map 0% reduce 0%
+2025-11-05 14:11:59,959 INFO mapreduce.Job:  map 59% reduce 0%
+2025-11-05 14:12:04,051 INFO mapreduce.Job:  map 100% reduce 0%
+2025-11-05 14:12:19,077 INFO mapreduce.Job:  map 100% reduce 100%
+2025-11-05 14:12:21,121 INFO mapreduce.Job: Job job_1762319679353_0005 completed successfully
+2025-11-05 14:12:21,226 INFO mapreduce.Job: Counters: 54
+	File System Counters
+		FILE: Number of bytes read=16125945
+		FILE: Number of bytes written=24590621
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=110135419
+		HDFS: Number of bytes written=5540461
+		HDFS: Number of read operations=8
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+		HDFS: Number of bytes read erasure-coded=0
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=19086
+		Total time spent by all reduces in occupied slots (ms)=5693
+		Total time spent by all map tasks (ms)=19086
+		Total time spent by all reduce tasks (ms)=5693
+		Total vcore-milliseconds taken by all map tasks=19086
+		Total vcore-milliseconds taken by all reduce tasks=5693
+		Total megabyte-milliseconds taken by all map tasks=19544064
+		Total megabyte-milliseconds taken by all reduce tasks=5829632
+	Map-Reduce Framework
+		Map input records=7600599
+		Map output records=7600595
+		Map output bytes=81671444
+		Map output materialized bytes=7912603
+		Input split bytes=114
+		Combine input records=8240891
+		Combine output records=1257390
+		Reduce input groups=617094
+		Reduce shuffle bytes=7912603
+		Reduce input records=617094
+		Reduce output records=617094
+		Spilled Records=1874484
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=484
+		CPU time spent (ms)=25650
+		Physical memory (bytes) snapshot=653496320
+		Virtual memory (bytes) snapshot=5511716864
+		Total committed heap usage (bytes)=435159040
+		Peak Map Physical memory (bytes)=438448128
+		Peak Map Virtual memory (bytes)=2753761280
+		Peak Reduce Physical memory (bytes)=215048192
+		Peak Reduce Virtual memory (bytes)=2757955584
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=110135305
+	File Output Format Counters 
+		Bytes Written=5540461
+Job 1 completed in: 45549 ms
+=== STARTING MAPREDUCE JOB 2: Calculate Distribution ===
+2025-11-05 14:12:21,252 INFO client.DefaultNoHARMFailoverProxyProvider: Connecting to ResourceManager at /0.0.0.0:8032
+2025-11-05 14:12:21,274 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+2025-11-05 14:12:21,301 INFO mapreduce.JobResourceUploader: Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/dinesh/.staging/job_1762319679353_0006
+2025-11-05 14:12:21,785 INFO input.FileInputFormat: Total input files to process : 1
+2025-11-05 14:12:21,838 INFO mapreduce.JobSubmitter: number of splits:1
+2025-11-05 14:12:21,901 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1762319679353_0006
+2025-11-05 14:12:21,901 INFO mapreduce.JobSubmitter: Executing with tokens: []
+2025-11-05 14:12:22,154 INFO impl.YarnClientImpl: Submitted application application_1762319679353_0006
+2025-11-05 14:12:22,162 INFO mapreduce.Job: The url to track the job: http://dinesh-VirtualBox:8088/proxy/application_1762319679353_0006/
+2025-11-05 14:12:22,162 INFO mapreduce.Job: Running job: job_1762319679353_0006
+2025-11-05 14:12:32,465 INFO mapreduce.Job: Job job_1762319679353_0006 running in uber mode : false
+2025-11-05 14:12:32,466 INFO mapreduce.Job:  map 0% reduce 0%
+2025-11-05 14:12:39,700 INFO mapreduce.Job:  map 100% reduce 0%
+2025-11-05 14:12:44,759 INFO mapreduce.Job:  map 100% reduce 100%
+2025-11-05 14:12:45,845 INFO mapreduce.Job: Job job_1762319679353_0006 completed successfully
+2025-11-05 14:12:45,874 INFO mapreduce.Job: Counters: 54
+	File System Counters
+		FILE: Number of bytes read=9256
+		FILE: Number of bytes written=570627
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=5540586
+		HDFS: Number of bytes written=6101
+		HDFS: Number of read operations=8
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+		HDFS: Number of bytes read erasure-coded=0
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=4828
+		Total time spent by all reduces in occupied slots (ms)=3663
+		Total time spent by all map tasks (ms)=4828
+		Total time spent by all reduce tasks (ms)=3663
+		Total vcore-milliseconds taken by all map tasks=4828
+		Total vcore-milliseconds taken by all reduce tasks=3663
+		Total megabyte-milliseconds taken by all map tasks=4943872
+		Total megabyte-milliseconds taken by all reduce tasks=3750912
+	Map-Reduce Framework
+		Map input records=617094
+		Map output records=617094
+		Map output bytes=4936752
+		Map output materialized bytes=9256
+		Input split bytes=125
+		Combine input records=617094
+		Combine output records=925
+		Reduce input groups=925
+		Reduce shuffle bytes=9256
+		Reduce input records=925
+		Reduce output records=925
+		Spilled Records=1850
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=135
+		CPU time spent (ms)=4390
+		Physical memory (bytes) snapshot=547823616
+		Virtual memory (bytes) snapshot=5495726080
+		Total committed heap usage (bytes)=351272960
+		Peak Map Physical memory (bytes)=332357632
+		Peak Map Virtual memory (bytes)=2738475008
+		Peak Reduce Physical memory (bytes)=215465984
+		Peak Reduce Virtual memory (bytes)=2757251072
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=5540461
+	File Output Format Counters 
+		Bytes Written=6101
+Job 2 completed in: 24645 ms
+TOTAL MAPREDUCE TIME: 70197 ms
+=== MAPREDUCE ANALYSIS COMPLETE ===
+----------------------------------------
+Job exit status: 0
+MapReduce job completed successfully!
+Copying results from HDFS to local filesystem...
+
+Checking output...
+total 16
+drwxr-xr-x 2 dinesh dinesh 4096 Nov  5 14:12 .
+drwxrwxr-x 3 dinesh dinesh 4096 Nov  5 14:12 ..
+-rw-r--r-- 1 dinesh dinesh 6101 Nov  5 14:12 part-r-00000
+-rw-r--r-- 1 dinesh dinesh    0 Nov  5 14:12 _SUCCESS
+
+=== RESULTS ===
+Sample distribution (first 10):
+1	183981
+2	129085
+3	76580
+4	50134
+5	33042
+6	21885
+7	17428
+8	9478
+9	7116
+10	7338
+
+Total distribution entries: 925
+Output file size: 6.0K
+
+Top 5 most common in-degrees:
+1	183981
+2	129085
+3	76580
+4	50134
+5	33042
+
+=== EXECUTION SUMMARY ===
+Dataset: berk
+Input file: web-BerkStan.txt
+File size: 106M
+Execution time: 71 seconds
+Job status: SUCCESS
+Mode: HDFS
+End time: Wed Nov  5 02:12:50 PM +0530 2025
+
+Output location: /home/dinesh/bigdata-assignment/results/berk/hadoop/output-20251105_141128/part-r-00000
+To view full results: cat /home/dinesh/bigdata-assignment/results/berk/hadoop/output-20251105_141128/part-r-00000
+
+========================================

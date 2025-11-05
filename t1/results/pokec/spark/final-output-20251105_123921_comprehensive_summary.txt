@@ -1,0 +1,28 @@
+SPARK IN-DEGREE ANALYSIS - COMPREHENSIVE SUMMARY
+================================================
+Execution Mode: LOCAL
+Dataset: pokec
+Application: InDegreeAnalysis-pokec-1762326565
+Application ID: local-1762326567493
+Input File: /home/dinesh/bigdata-assignment/data/pokec/soc-pokec-relationships.txt
+Input File Size: 404.30 MB
+Output Directory: /home/dinesh/bigdata-assignment/results/pokec/spark/final-output-20251105_123921
+Start Time: 2025-11-05 12:39:28
+
+EXECUTION TIME BREAKDOWN:
+Job 1 (Data Loading): 0.89 seconds (886 ms)
+Job 2 (Calculate In-Degrees): 0.19 seconds (188 ms)
+Job 3 (Calculate Distribution): 1m 34.54s (94537 ms)
+Job 4 (Calculate Statistics): 37.14 seconds (37142 ms)
+Job 5 (Save Results): 2.41 seconds (2409 ms)
+TOTAL EXECUTION TIME: 2m 15.17s (135168 ms)
+
+DATA PROCESSING RESULTS:
+Total Edges: 30,622,564
+Unique Nodes: 1,519,452
+Distribution Entries: 535
+
+SYSTEM METRICS:
+Process Memory (RSS): 22.56 MB
+Process Memory (VMS): 391.21 MB
+Total System Memory: 3.82 GB
