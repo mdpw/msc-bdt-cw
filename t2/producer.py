@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Simple Real-time Austin Traffic Data Producer
-Fetches data from Austin Open Data API every 10 minutes and sends to Kafka
+Simple CSV-based Real-time Austin Camera Traffic Counts Data Producer
+Clean and simple data processing with specific type conversions
 """
 
 import json
@@ -10,9 +10,11 @@ import logging
 import yaml
 from datetime import datetime
 import pandas as pd
-from sodapy import Socrata
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
+import sys
+import os
+import re
 
 # Load configuration
 def load_config():
@@ -38,23 +40,75 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class TrafficProducer:
-    def __init__(self):
+def clean_to_digits_only(value):
+    """Extract only digits from a value"""
+    if pd.isna(value):
+        return 0
+    # Extract only digits
+    digits = re.findall(r'\d', str(value))
+    if digits:
+        return int(''.join(digits))
+    return 0
+
+
+def convert_to_boolean(value):
+    """Convert value to boolean"""
+    if pd.isna(value):
+        return False
+    str_val = str(value).lower().strip()
+    return str_val in ['true', '1', 'yes', 't']
+
+
+def convert_to_string(value):
+    """Convert value to clean string"""
+    if pd.isna(value):
+        return 'UNKNOWN'
+    return str(value).strip()
+
+
+def convert_read_date(value):
+    """Convert Read Date to timestamp"""
+    if pd.isna(value):
+        return datetime.now().isoformat()
+    try:
+        # Try to parse the date string
+        dt = pd.to_datetime(value)
+        return dt.isoformat()
+    except:
+        return datetime.now().isoformat()
+
+
+class CameraTrafficProducer:
+    def __init__(self, csv_file_path=None):
         # Load configuration from config.yml
         self.kafka_config = config['kafka']
-        self.api_config = config['api']
         self.producer_config = config['producer']
         
-        # Initialize clients
+        # CSV file settings - read from config
+        if csv_file_path is None:
+            self.csv_file_path = self.producer_config.get('csv_file_path', 'Camera_Traffic_Counts_20251110.csv')
+        else:
+            self.csv_file_path = csv_file_path
+            
+        # Read batch configuration from config.yml
+        self.max_records = self.producer_config.get('max_records', 200000)
+        self.records_per_batch = self.producer_config.get('records_per_batch', 10)
+        self.batch_interval_seconds = self.producer_config.get('batch_interval_seconds', 5)
+        
+        # Initialize Kafka producer
         self.kafka_producer = None
-        self.socrata_client = None
+        
+        # Data tracking
+        self.total_records = 0
+        self.sent_records = 0
+        self.current_batch = 0
         
     def connect_kafka(self):
         """Connect to Kafka"""
         try:
             self.kafka_producer = KafkaProducer(
                 bootstrap_servers=self.kafka_config['bootstrap_servers'],
-                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                value_serializer=lambda v: json.dumps(v, default=str).encode('utf-8'),
                 key_serializer=lambda k: str(k).encode('utf-8') if k else None
             )
             logger.info(f"Connected to Kafka: {self.kafka_config['bootstrap_servers']}")
@@ -63,249 +117,198 @@ class TrafficProducer:
             logger.error(f"Kafka connection failed: {e}")
             return False
     
-    def connect_api(self):
-        """Connect to Austin Open Data API"""
+    def load_and_process_csv(self):
+        """Load CSV file and process data types"""
         try:
-            # Check if authentication is provided
-            if (self.api_config.get('app_token') and 
-                self.api_config.get('username') and 
-                self.api_config.get('password')):
-                # Authenticated client
-                self.socrata_client = Socrata(
-                    self.api_config['domain'],
-                    self.api_config['app_token'],
-                    username=self.api_config['username'],
-                    password=self.api_config['password']
-                )
-                logger.info(f"Connected to Austin Open Data API (authenticated)")
-            else:
-                # Unauthenticated client (works with public data)
-                self.socrata_client = Socrata(self.api_config['domain'], None)
-                logger.info(f"Connected to Austin Open Data API (public access)")
-            return True
-        except Exception as e:
-            logger.error(f"API connection failed: {e}")
-            return False
-    
-    def handle_missing_values(self, df):
-        """Fill missing string columns with 'UNKNOWN'"""
-        string_columns = ['detector_type', 'detector_status', 'detector_direction', 
-                         'detector_movement', 'location_name', 'atd_location_id', 'signal_id', 'ip_comm_status']
-        for col in string_columns:
-            if col in df.columns:
-                df[col] = df[col].fillna('UNKNOWN')
-        
-        # Fill missing numeric columns with appropriate defaults
-        if 'detector_id' in df.columns:
-            df['detector_id'] = df['detector_id'].fillna(0)        
-        if 'atd_location_id' in df.columns:
-            df['atd_location_id'] = df['atd_location_id'].fillna('')
-        
-        # Fill missing coordinates with 0
-        if 'location_latitude' in df.columns:
-            df['location_latitude'] = df['location_latitude'].fillna(0.0)
-        if 'location_longitude' in df.columns:
-            df['location_longitude'] = df['location_longitude'].fillna(0.0)
-        
-        logger.info("Missing values handled")
-        return df
-    
-    def convert_timestamps(self, df):
-        """Convert timestamp columns to ISO format"""
-        timestamp_columns = ['created_date', 'modified_date', 'comm_status_datetime_utc']
-        
-        for col in timestamp_columns:
-            if col in df.columns:
-                try:
-                    # Try parsing the datetime
-                    df[col] = pd.to_datetime(df[col], errors='coerce')
-                    # Convert to ISO format string
-                    df[col] = df[col].dt.strftime('%Y-%m-%dT%H:%M:%S')
-                    # Replace NaT with None
-                    df[col] = df[col].replace('NaT', None)
-                except Exception as e:
-                    logger.warning(f"Could not convert {col}: {e}")
-        
-        logger.info("Timestamps converted to ISO format")
-        return df
-    
-    def parse_location(self, df):
-        """Parse POINT coordinates from LOCATION column"""
-        if 'LOCATION' in df.columns:
-            def extract_coordinates(location_str):
-                try:
-                    if pd.isna(location_str):
-                        return None, None
-                    # Extract coordinates from POINT (-97.85701 30.172396)
-                    coords = location_str.replace('POINT (', '').replace(')', '').split()
-                    return float(coords[0]), float(coords[1])
-                except:
-                    return None, None
+            logger.info(f"Loading CSV file: {self.csv_file_path}")
             
-            # Only parse if columns don't exist or have missing values
-            if 'location_longitude' not in df.columns or 'location_latitude' not in df.columns:
-                df[['location_longitude', 'location_latitude']] = \
-                    df['LOCATION'].apply(lambda x: pd.Series(extract_coordinates(x)))
-            else:
-                # Fill missing coordinates from LOCATION column
-                mask = df['location_longitude'].isna() | df['location_latitude'].isna()
-                if mask.any():
-                    df.loc[mask, ['location_longitude', 'location_latitude']] = \
-                        df.loc[mask, 'LOCATION'].apply(lambda x: pd.Series(extract_coordinates(x)))
+            # Check if file exists
+            if not os.path.exists(self.csv_file_path):
+                logger.error(f"CSV file not found: {self.csv_file_path}")
+                return None
             
-            logger.info("Location coordinates parsed")
-        return df
-    
-    def clean_string_columns(self, df):
-        """Clean and standardize string columns"""
-        string_columns = df.select_dtypes(include=['object']).columns
-        
-        for col in string_columns:
-            # Strip whitespace
-            df[col] = df[col].astype(str).str.strip()
-            # Replace empty strings with None
-            df[col] = df[col].replace('', None)
-            df[col] = df[col].replace('nan', None)
-        
-        logger.info("String columns cleaned")
-        return df
-    
-    def fetch_and_clean_data(self, limit=None):
-        """Fetch data from API and apply comprehensive preprocessing"""
-        try:
-            # Use limit from config if not specified
-            if limit is None:
-                limit = self.producer_config['records_per_fetch']
-                
-            logger.info(f"Fetching up to {limit} records from API...")
+            # Load CSV
+            df = pd.read_csv(self.csv_file_path)
+            logger.info(f"Successfully loaded {len(df)} records")
             
-            # Fetch data from Austin Traffic Detectors dataset
-            results = self.socrata_client.get(self.api_config['dataset_id'], limit=limit)
+            # Limit records to first 200,000
+            if len(df) > self.max_records:
+                logger.info(f"Limiting to first {self.max_records:,} records")
+                df = df.head(self.max_records).copy()
             
-            if not results:
-                logger.warning("No data received from API")
-                return []
+            logger.info(f"Original columns: {list(df.columns)}")
             
-            # Convert to DataFrame for processing
-            df = pd.DataFrame.from_records(results)
-            logger.info(f"Received {len(df)} records from API")
+            # Process each column according to requirements
+            logger.info("Processing data types...")
             
-            # Apply comprehensive preprocessing pipeline
-            logger.info("Starting preprocessing pipeline...")
+            # Convert "Record ID" to string
+            if 'Record ID' in df.columns:
+                df['Record ID'] = df['Record ID'].apply(convert_to_string)
+                logger.info("✅ Converted 'Record ID' to string")
             
-            # Step 1: Handle missing values
-            df = self.handle_missing_values(df)
+            # Convert "Intersection Name" to string
+            if 'Intersection Name' in df.columns:
+                df['Intersection Name'] = df['Intersection Name'].apply(convert_to_string)
+                logger.info("✅ Converted 'Intersection Name' to string")
             
-            # Step 2: Parse location coordinates
-            df = self.parse_location(df)
+            # Convert "Direction" to string
+            if 'Direction' in df.columns:
+                df['Direction'] = df['Direction'].apply(convert_to_string)
+                logger.info("✅ Converted 'Direction' to string")
             
-            # Step 3: Convert timestamps
-            df = self.convert_timestamps(df)
+            # Convert "Movement" to string
+            if 'Movement' in df.columns:
+                df['Movement'] = df['Movement'].apply(convert_to_string)
+                logger.info("✅ Converted 'Movement' to string")
             
-            # Step 4: Clean string columns
-            df = self.clean_string_columns(df)
+            # Convert "Heavy Vehicle" to boolean
+            if 'Heavy Vehicle' in df.columns:
+                df['Heavy Vehicle'] = df['Heavy Vehicle'].apply(convert_to_boolean)
+                logger.info("Converted 'Heavy Vehicle' to boolean")
             
-            # Step 5: Add processing timestamps
-            df['api_fetch_time'] = datetime.now().isoformat()
-            df['stream_time'] = datetime.now().isoformat()
+            # Convert "Year" to numeric (digits only)
+            if 'Year' in df.columns:
+                df['Year'] = df['Year'].apply(clean_to_digits_only)
+                logger.info(f"Converted 'Year' to numeric - range: {df['Year'].min()} to {df['Year'].max()}")
             
-            # Convert back to list of dictionaries
-            clean_records = df.to_dict('records')
+            # Convert "ATD Device ID" to numeric (digits only)
+            if 'ATD Device ID' in df.columns:
+                df['ATD Device ID'] = df['ATD Device ID'].apply(clean_to_digits_only)
+                logger.info(f"Converted 'ATD Device ID' to numeric - range: {df['ATD Device ID'].min()} to {df['ATD Device ID'].max()}")
             
-            logger.info(f"Preprocessing completed - prepared {len(clean_records)} clean records")
-            return clean_records
+            # Convert "Read Date" to timestamp
+            if 'Read Date' in df.columns:
+                df['Read Date'] = df['Read Date'].apply(convert_read_date)
+                logger.info("Converted 'Read Date' to timestamp")
+            
+            # Show sample of processed data
+            logger.info("Sample processed record:")
+            if len(df) > 0:
+                sample = df.iloc[0]
+                for col in df.columns:
+                    logger.info(f"  {col}: {sample[col]} ({type(sample[col]).__name__})")
+            
+            self.total_records = len(df)
+            logger.info(f"✅ Successfully processed {self.total_records} records")
+            return df
             
         except Exception as e:
-            logger.error(f"Error fetching/preprocessing data: {e}")
-            return []
+            logger.error(f"Error loading CSV file: {e}")
+            return None
     
-    def send_to_kafka(self, records):
-        """Send records to Kafka"""
-        if not records:
-            logger.warning("No records to send")
+    def send_batch_to_kafka(self, batch_df):
+        """Send a batch of records to Kafka"""
+        if batch_df.empty:
             return 0
         
         success_count = 0
-        timeout = self.producer_config['kafka_timeout_seconds']
         
-        for record in records:
+        for _, record in batch_df.iterrows():
             try:
-                # Use detector_id as key for partitioning
-                key = str(record.get('detector_id', ''))
+                # Convert record to dictionary
+                record_dict = record.to_dict()
+                
+                # Use ATD device ID as key for partitioning
+                key = str(record_dict.get('ATD Device ID', ''))
                 
                 # Send to Kafka
-                future = self.kafka_producer.send(self.kafka_config['topic'], key=key, value=record)
-                future.get(timeout=timeout)  # Wait for send to complete
+                future = self.kafka_producer.send(
+                    self.kafka_config['topic'], 
+                    key=key, 
+                    value=record_dict
+                )
+                future.get(timeout=10)
                 
                 success_count += 1
+                self.sent_records += 1
                 
             except Exception as e:
                 logger.error(f"Failed to send record: {e}")
         
-        logger.info(f"Successfully sent {success_count}/{len(records)} records to Kafka topic '{self.kafka_config['topic']}'")
+        # Flush to ensure all messages are sent
+        self.kafka_producer.flush()
+        
         return success_count
     
-    def run_once(self):
-        """Fetch data once and send to Kafka"""
-        logger.info("=" * 60)
-        logger.info(f"FETCH CYCLE - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        logger.info("=" * 60)
-        
-        # Fetch and clean data
-        records = self.fetch_and_clean_data()
-        
-        if records:
-            # Send to Kafka
-            sent_count = self.send_to_kafka(records)
-            
-            # Show sample record
-            sample = records[0]
-            logger.info(f"\nSample record:")
-            logger.info(f"  Detector ID: {sample.get('detector_id', 'N/A')}")
-            logger.info(f"  Status: {sample.get('detector_status', 'N/A')}")
-            logger.info(f"  Location: {sample.get('location_name', 'N/A')}")
-            logger.info(f"  Type: {sample.get('detector_type', 'N/A')}")
-            
-            return sent_count
-        else:
-            logger.warning("No records fetched")
-            return 0
-    
-    def start_continuous(self):
-        """Start continuous fetching every 10 minutes"""
+    def simulate_streaming(self):
+        """Main streaming simulation function"""
         logger.info("=" * 80)
-        logger.info("AUSTIN TRAFFIC DATA REAL-TIME PRODUCER")
+        logger.info("CSV CAMERA TRAFFIC DATA PRODUCER")
         logger.info("=" * 80)
+        logger.info(f"CSV File: {self.csv_file_path}")
+        logger.info(f"Max Records: {self.max_records:,}")
+        logger.info(f"Records per Batch: {self.records_per_batch}")
+        logger.info(f"Batch Interval: {self.batch_interval_seconds} seconds")
         logger.info(f"Kafka Server: {self.kafka_config['bootstrap_servers']}")
         logger.info(f"Kafka Topic: {self.kafka_config['topic']}")
-        logger.info(f"API Domain: {self.api_config['domain']}")
-        logger.info(f"Dataset ID: {self.api_config['dataset_id']}")
-        logger.info(f"Fetch Interval: {self.producer_config['fetch_interval_minutes']} minutes")
-        logger.info(f"Records per fetch: {self.producer_config['records_per_fetch']}")
         logger.info("Press Ctrl+C to stop")
         logger.info("=" * 80)
         
-        # Connect to services
+        # Connect to Kafka
         if not self.connect_kafka():
-            return
-        if not self.connect_api():
+            logger.error("Failed to connect to Kafka. Exiting.")
             return
         
+        # Load and process CSV data
+        df = self.load_and_process_csv()
+        if df is None:
+            logger.error("Failed to load CSV data. Exiting.")
+            return
+        
+        logger.info(f"Ready to stream {self.total_records} records")
+        
         try:
-            while True:
-                # Fetch and send data
-                self.run_once()
+            # Calculate total batches
+            total_batches = (self.total_records + self.records_per_batch - 1) // self.records_per_batch
+            estimated_duration = total_batches * self.batch_interval_seconds
+            logger.info(f"Estimated streaming duration: {estimated_duration} seconds ({estimated_duration/60:.1f} minutes)")
+            
+            # Stream data in batches
+            for batch_num in range(total_batches):
+                start_idx = batch_num * self.records_per_batch
+                end_idx = min(start_idx + self.records_per_batch, self.total_records)
                 
-                # Wait for next interval
-                wait_seconds = self.producer_config['fetch_interval_minutes'] * 60
-                logger.info(f"\nWaiting {self.producer_config['fetch_interval_minutes']} minutes until next fetch...")
-                logger.info("=" * 60 + "\n")
-                time.sleep(wait_seconds)
+                # Get current batch
+                batch_df = df.iloc[start_idx:end_idx].copy()
+                
+                # Send batch to Kafka
+                sent_count = self.send_batch_to_kafka(batch_df)
+                
+                # Progress logging
+                self.current_batch = batch_num + 1
+                progress_pct = (self.sent_records / self.total_records) * 100
+                
+                # Show sample from current batch
+                if not batch_df.empty:
+                    sample = batch_df.iloc[0]
+                    logger.info(f"BATCH {self.current_batch}/{total_batches} - Progress: {progress_pct:.1f}%")
+                    logger.info(f"  Sent: {sent_count}/{len(batch_df)} records")
+                    logger.info(f"  Sample: Device {sample.get('ATD Device ID')} at {sample.get('Read Date')}")
+                    logger.info(f"    {sample.get('Intersection Name')} - {sample.get('Direction')} {sample.get('Movement')}")
+                    logger.info(f"    Volume: {sample.get('Volume')}, Heavy Vehicle: {sample.get('Heavy Vehicle')}")
+                    logger.info(f"  Total sent so far: {self.sent_records}/{self.total_records}")
+                
+                # Check if we're done
+                if self.sent_records >= self.total_records:
+                    break
+                
+                # Wait before next batch (unless it's the last batch)
+                if batch_num < total_batches - 1:
+                    logger.info(f"  Waiting {self.batch_interval_seconds} seconds...")
+                    time.sleep(self.batch_interval_seconds)
+            
+            logger.info("=" * 80)
+            logger.info("STREAMING COMPLETED SUCCESSFULLY!")
+            logger.info(f"Total records sent: {self.sent_records}/{self.total_records}")
+            logger.info("=" * 80)
                 
         except KeyboardInterrupt:
-            logger.info("\nStopped by user (Ctrl+C)")
+            logger.info("\n" + "=" * 80)
+            logger.info("STREAMING STOPPED BY USER (Ctrl+C)")
+            logger.info(f"Records sent: {self.sent_records}/{self.total_records}")
+            logger.info("=" * 80)
         except Exception as e:
-            logger.error(f"Error in continuous loop: {e}")
+            logger.error(f"Error during streaming: {e}")
         finally:
             self.cleanup()
     
@@ -315,23 +318,20 @@ class TrafficProducer:
             self.kafka_producer.flush()
             self.kafka_producer.close()
             logger.info("Kafka producer closed")
-        
-        if self.socrata_client:
-            self.socrata_client.close()
-            logger.info("API client closed")
 
 
 def main():
     """Main function"""
-    producer = TrafficProducer()
+    producer = CameraTrafficProducer()
     
-    # You can test with a single fetch:
-    # producer.connect_kafka()
-    # producer.connect_api()
-    # producer.run_once()
+    # Check if CSV file exists
+    if not os.path.exists(producer.csv_file_path):
+        logger.error(f"CSV file not found: {producer.csv_file_path}")
+        logger.info("Please check the 'csv_file_path' setting in config.yml")
+        sys.exit(1)
     
-    # Or start continuous operation:
-    producer.start_continuous()
+    # Start streaming
+    producer.simulate_streaming()
 
 
 if __name__ == "__main__":

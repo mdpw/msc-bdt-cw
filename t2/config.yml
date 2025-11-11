@@ -1,38 +1,26 @@
-# Configuration file for Traffic Detector Data Processing
+# Configuration file for Camera Traffic Data Processing
 
 # Kafka Configuration
 kafka:
   bootstrap_servers: '192.168.1.38:9092'
   topic: 'traffic-data'
   consumer_group_id: 'traffic-consumer'
-  enable_output_topics: true    # Enable/disable Kafka output
+  enable_output_topics: true
 
-# Austin Open Data API Configuration
-api:
-  domain: 'data.austintexas.gov'
-  dataset_id: 'qpuw-8eeb'  # Austin Traffic Detectors dataset
-  app_token: 'K7qQwT4oQv5YSrOyhk5Bnimb8'           # Optional: Add your Socrata app token for higher rate limits
-  username: 'dineshwij.dev@gmail.com'            # Optional: For authenticated access
-  password: 'Welcome@1234567'            # Optional: For authenticated access
-
-# Producer Configuration
+# Producer Configuration (CSV Streaming Mode)
 producer:
-  fetch_interval_minutes: 10    # How often to fetch data from API
-  records_per_fetch: 6000       # Maximum records per API call
-  kafka_timeout_seconds: 10     # Timeout for Kafka send operations
+  csv_file_path: 'Camera_Traffic_Counts_20251110.csv'
+  max_records: 200000
+  records_per_batch: 50
+  batch_interval_seconds: 5
 
-# Consumer Configuration
+# Consumer Configuration  
 consumer:
-  auto_offset_reset: 'earliest'   # Start from 'earliest' or 'latest' messages
-  enable_auto_commit: true      # Auto commit message offsets
-  stats_display_interval: 10    # Show stats every N messages
+  auto_offset_reset: 'earliest'
+  enable_auto_commit: true
+  daily_metrics_batch_size: 50
 
-# Logging Configuration
-logging:
-  level: 'INFO'                 # DEBUG, INFO, WARNING, ERROR
-  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-
-# PostgreSQL database configuration
+# PostgreSQL Database
 postgres:
   enabled: true
   host: 'localhost'
@@ -40,3 +28,8 @@ postgres:
   database: 'traffic-sensor'
   user: 'admin'
   password: 'admin123'
+
+# Logging
+logging:
+  level: 'INFO'
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
