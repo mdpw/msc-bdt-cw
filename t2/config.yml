@@ -10,7 +10,7 @@ kafka:
 # Producer Configuration (CSV Streaming Mode)
 producer:
   csv_file_path: 'Camera_Traffic_Counts_20251110.csv'
-  max_records: 200000
+  max_records: 50000
   records_per_batch: 50
   batch_interval_seconds: 5
 

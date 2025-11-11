@@ -1,0 +1,70 @@
+// Create Users
+CREATE
+  (a:User {name:'Dinuka', age:28, location:'Colombo', joinDate: date('2022-01-15')}),
+  (b:User {name:'Kasun', age:26, location:'Kandy', joinDate: date('2021-06-10')}),
+  (c:User {name:'Rashmi', age:24, location:'Galle', joinDate: date('2022-03-22')}),
+  (d:User {name:'Tharindu', age:29, location:'Negombo', joinDate: date('2020-11-05')}),
+  (e:User {name:'Ishara', age:27, location:'Matara', joinDate: date('2021-12-30')}),
+  (f:User {name:'Nuwan', age:25, location:'Kurunegala', joinDate: date('2022-07-18')}),
+  (g:User {name:'Sajith', age:30, location:'Colombo', joinDate: date('2019-09-14')}),
+  (h:User {name:'Amali', age:23, location:'Kandy', joinDate: date('2022-02-05')}),
+  (i:User {name:'Gayan', age:28, location:'Galle', joinDate: date('2021-08-12')}),
+  (j:User {name:'Bimali', age:24, location:'Matara', joinDate: date('2022-01-20')}),
+  (k:User {name:'Chathura', age:29, location:'Negombo', joinDate: date('2020-10-11')}),
+  (l:User {name:'Dilani', age:26, location:'Kurunegala', joinDate: date('2021-05-22')}),
+  (m:User {name:'Ruwan', age:27, location:'Colombo', joinDate: date('2022-04-30')}),
+  (n:User {name:'Kavindu', age:25, location:'Kandy', joinDate: date('2022-06-15')}),
+  (o:User {name:'Menaka', age:28, location:'Galle', joinDate: date('2021-07-09')}),
+  (p:User {name:'Prasanna', age:30, location:'Matara', joinDate: date('2019-12-03')}),
+  (q:User {name:'Nadeesha', age:23, location:'Colombo', joinDate: date('2022-03-18')}),
+  (r:User {name:'Upeksha', age:24, location:'Negombo', joinDate: date('2022-08-25')}),
+  (s:User {name:'Yasiru', age:29, location:'Kandy', joinDate: date('2020-05-16')}),
+  (t:User {name:'Thilini', age:26, location:'Galle', joinDate: date('2021-11-21')});
+  
+// Create multiple social media relationship types
+CREATE
+  // Follows (directed)
+  (a)-[:FOLLOWS]->(b),
+  (a)-[:FOLLOWS]->(c),
+  (b)-[:FOLLOWS]->(a),
+  (c)-[:FOLLOWS]->(h),
+  (d)-[:FOLLOWS]->(f),
+  (e)-[:FOLLOWS]->(i),
+  (f)-[:FOLLOWS]->(k),
+  (j)-[:FOLLOWS]->(n),
+  (p)-[:FOLLOWS]->(a),
+
+  // Friends (mutual)
+  (a)-[:FRIENDS_WITH]->(d),
+  (b)-[:FRIENDS_WITH]-(e),
+  (c)-[:FRIENDS_WITH]-(g),
+  (h)-[:FRIENDS_WITH]-(i),
+  (k)-[:FRIENDS_WITH]-(l),
+  (m)-[:FRIENDS_WITH]-(n),
+  (o)-[:FRIENDS_WITH]-(p),
+  (q)-[:FRIENDS_WITH]-(r),
+  (s)-[:FRIENDS_WITH]-(t),
+
+  // Messages (directed)
+  (a)-[:MESSAGED]->(r),
+  (b)-[:MESSAGED]->(c),
+  (c)-[:MESSAGED]->(d),
+  (e)-[:MESSAGED]->(a),
+  (f)-[:MESSAGED]->(g),
+  (h)-[:MESSAGED]->(b),
+  (i)-[:MESSAGED]->(j),
+  (k)-[:MESSAGED]->(m),
+  (l)-[:MESSAGED]->(n),
+  (o)-[:MESSAGED]->(q),
+
+  // Likes (directed)
+  (a)-[:LIKED]->(b),
+  (a)-[:LIKED]->(c),
+  (b)-[:LIKED]->(a),
+  (c)-[:LIKED]->(d),
+  (d)-[:LIKED]->(e),
+  (f)-[:LIKED]->(g),
+  (h)-[:LIKED]->(i),
+  (i)-[:LIKED]->(j),
+  (k)-[:LIKED]->(l),
+  (m)-[:LIKED]->(n);

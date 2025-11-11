@@ -1,0 +1,45 @@
+docker run -d --name neo4j-graphdb -p7474:7474 -p7687:7687 -e NEO4J_AUTH=neo4j/test1234 neo4j:latest
+
+
+(a:User {name:'Dinuka'}),
+  (b:User {name:'Kasun'}),
+  (c:User {name:'Rashmi'}),
+  (d:User {name:'Tharindu'}),
+  (e:User {name:'Ishara'}),
+  (f:User {name:'Nuwan'}),
+  (g:User {name:'Sajith'}),
+  (h:User {name:'Amali'}),
+  (i:User {name:'Gayan'}),
+  (j:User {name:'Bimali'}),
+  (k:User {name:'Chathura'}),
+  (l:User {name:'Dilani'}),
+  (m:User {name:'Ruwan'}),
+  (n:User {name:'Kavindu'}),
+  (o:User {name:'Menaka'}),
+  (p:User {name:'Prasanna'}),
+  (q:User {name:'Nadeesha'}),
+  (r:User {name:'Upeksha'}),
+  (s:User {name:'Yasiru'}),
+  (t:User {name:'Thilini'}),
+
+  // Follows relationships
+  (a)-[:FOLLOWS]->(b),
+  (a)-[:FOLLOWS]->(c),
+  (a)-[:FOLLOWS]->(d),
+  (b)-[:FOLLOWS]->(a),  
+  (c)-[:FOLLOWS]->(a),  
+  (j)-[:FOLLOWS]->(a),  
+  (q)-[:FOLLOWS]->(a),  
+  (p)-[:FOLLOWS]->(a),
+
+
+kasun rashmi Tharindu Bimal Nadeesha Prasanna
+
+
+
+if below cypher gives indirect connections only
+MATCH (a:User {name:'Dinuka'})-[:FOLLOWS*2..3]->(b:User)
+RETURN DISTINCT b.name AS IndirectConnections;
+
+How can Nuwan, Tharindu, Kasun, Rashmi retrived? they have direct connect with Dinuka according to our database definition right?
+

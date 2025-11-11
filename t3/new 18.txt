@@ -1,0 +1,82 @@
+// 1️⃣ Clear any existing data
+MATCH (n) DETACH DELETE n;
+
+// Create 20 Users with city and date of birth
+CREATE
+  (a:User {name:'Dinuka', city:'Colombo', dob: date('1995-04-12')}),
+  (b:User {name:'Kasun', city:'Kandy', dob: date('1996-08-23')}),
+  (c:User {name:'Rashmi', city:'Galle', dob: date('1997-03-15')}),
+  (d:User {name:'Tharindu', city:'Negombo', dob: date('1994-11-05')}),
+  (e:User {name:'Ishara', city:'Matara', dob: date('1995-12-30')}),
+  (f:User {name:'Nuwan', city:'Kurunegala', dob: date('1996-07-18')}),
+  (g:User {name:'Sajith', city:'Colombo', dob: date('1993-09-14')}),
+  (h:User {name:'Amali', city:'Kandy', dob: date('1998-02-05')}),
+  (i:User {name:'Gayan', city:'Galle', dob: date('1995-08-12')}),
+  (j:User {name:'Bimali', city:'Matara', dob: date('1997-01-20')}),
+  (k:User {name:'Chathura', city:'Negombo', dob: date('1994-10-11')}),
+  (l:User {name:'Dilani', city:'Kurunegala', dob: date('1996-05-22')}),
+  (m:User {name:'Ruwan', city:'Colombo', dob: date('1995-04-30')}),
+  (n:User {name:'Kavindu', city:'Kandy', dob: date('1996-06-15')}),
+  (o:User {name:'Menaka', city:'Galle', dob: date('1995-07-09')}),
+  (p:User {name:'Prasanna', city:'Matara', dob: date('1993-12-03')}),
+  (q:User {name:'Nadeesha', city:'Colombo', dob: date('1998-03-18')}),
+  (r:User {name:'Upeksha', city:'Negombo', dob: date('1997-08-25')}),
+  (s:User {name:'Yasiru', city:'Kandy', dob: date('1994-05-16')}),
+  (t:User {name:'Thilini', city:'Galle', dob: date('1996-11-21')}),
+
+// FOLLOWS relationships (directed)
+
+  (a)-[:FOLLOWS]->(b),
+  (a)-[:FOLLOWS]->(c),
+  (a)-[:FOLLOWS]->(d),
+  (b)-[:FOLLOWS]->(a),
+  (b)-[:FOLLOWS]->(e),
+  (b)-[:FOLLOWS]->(f),
+  (c)-[:FOLLOWS]->(a),
+  (c)-[:FOLLOWS]->(h),
+  (c)-[:FOLLOWS]->(j),
+  (d)-[:FOLLOWS]->(f),
+  (d)-[:FOLLOWS]->(g),
+  (e)-[:FOLLOWS]->(c),
+  (e)-[:FOLLOWS]->(i),
+  (f)-[:FOLLOWS]->(j),
+  (f)-[:FOLLOWS]->(k),
+  (g)-[:FOLLOWS]->(l),
+  (h)-[:FOLLOWS]->(m),
+  (i)-[:FOLLOWS]->(b),
+  (i)-[:FOLLOWS]->(c),
+  (j)-[:FOLLOWS]->(a),
+  (j)-[:FOLLOWS]->(n),
+  (k)-[:FOLLOWS]->(o),
+  (l)-[:FOLLOWS]->(p),
+  (m)-[:FOLLOWS]->(q),
+  (n)-[:FOLLOWS]->(r),
+  (o)-[:FOLLOWS]->(s),
+  (p)-[:FOLLOWS]->(a),
+  (p)-[:FOLLOWS]->(t),
+  (q)-[:FOLLOWS]->(a),
+  (r)-[:FOLLOWS]->(d),
+  (r)-[:FOLLOWS]->(g),
+  (s)-[:FOLLOWS]->(h),
+  (s)-[:FOLLOWS]->(i),
+  (t)-[:FOLLOWS]->(b),
+  (t)-[:FOLLOWS]->(j),
+  (t)-[:FOLLOWS]->(m),
+  (n)-[:FOLLOWS]->(f),
+
+// FRIENDS_WITH relationships (bidirectional)
+
+  (a)-[:FRIENDS_WITH]->(d), (d)-[:FRIENDS_WITH]->(a),
+  (b)-[:FRIENDS_WITH]->(e), (e)-[:FRIENDS_WITH]->(b),
+  (c)-[:FRIENDS_WITH]->(g), (g)-[:FRIENDS_WITH]->(c),
+  (h)-[:FRIENDS_WITH]->(i), (i)-[:FRIENDS_WITH]->(h),
+  (k)-[:FRIENDS_WITH]->(l), (l)-[:FRIENDS_WITH]->(k),
+  (m)-[:FRIENDS_WITH]->(n), (n)-[:FRIENDS_WITH]->(m),
+  (o)-[:FRIENDS_WITH]->(p), (p)-[:FRIENDS_WITH]->(o),
+  (q)-[:FRIENDS_WITH]->(r), (r)-[:FRIENDS_WITH]->(q),
+  (s)-[:FRIENDS_WITH]->(t), (t)-[:FRIENDS_WITH]->(s);
+
+// Visualize the graph
+MATCH (u:User)-[r]-(v:User)
+RETURN u, r, v
+LIMIT 50;

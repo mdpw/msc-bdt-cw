@@ -1,0 +1,12 @@
+Data.AustinTexas.gov - The official City of Austin open data portal
+dineshwij.dev@gmail.com
+Welcome@1234567
+
+API Key Name - bd_cw_api_key
+API key ID - 5kz441yvkzp1dz00ouebx9imv
+API Key Secret - 4lby3aa0m5ve79vr38vbnjm33r2kg1rwahdvzioedlj59v83th
+
+
+
+Write processed data to another Kafka topic for visualization.
+Optionally processed results persist into a PostgreSQL storage system for historical analysis
