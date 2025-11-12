@@ -74,3 +74,12 @@ CREATE INDEX idx_availability_device ON sensor_availability_metrics(atd_device_i
 CREATE INDEX idx_availability_status ON sensor_availability_metrics(status);
 CREATE INDEX idx_availability_percentage ON sensor_availability_metrics(availability_percentage);
 CREATE INDEX idx_availability_created ON sensor_availability_metrics(created_at);
+
+
+-- Grant SELECT permissions on the specific tables
+GRANT SELECT ON TABLE hourly_sensor_metrics TO grafana;
+GRANT SELECT ON TABLE daily_peak_metrics TO grafana;
+GRANT SELECT ON TABLE sensor_availability_metrics TO grafana;
+
+-- Grant usage on the schema
+GRANT USAGE ON SCHEMA public TO grafana;
