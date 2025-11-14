@@ -7,7 +7,10 @@ __pycache__/
 *.pyc
 
 # Virtual Environments
+t1-env/
 t2-env/
+t3-env/
+t4_env/
 manufacturing-env/
 banking-env/
 venv/
@@ -23,9 +26,5 @@ ENV/
 .idea/
 *.swp
 *.swo
-
-# MLflow
-mlruns/
-mlartifacts/
 
 data/
