@@ -60,7 +60,7 @@ update_kafka_config() {
     ADVERTISED="localhost"
   fi
 
-  echo "⚙️ Updating Kafka configuration..."
+  echo " Updating Kafka configuration..."
   echo " - Detected VM IP: $VM_IP"
   echo " - Advertising as: $ADVERTISED:$KAFKA_PORT"
 
@@ -79,13 +79,13 @@ update_kafka_config() {
 start_services() {
   # --- Start Zookeeper ---
   if pgrep -f "QuorumPeerMain|zookeeper" > /dev/null; then
-    echo "✅ Zookeeper is already running."
+    echo " Zookeeper is already running."
   else
-    echo "🚀 Starting Zookeeper..."
+    echo " Starting Zookeeper..."
     nohup "$KAFKA_HOME/bin/zookeeper-server-start.sh" "$ZOOKEEPER_CONFIG" > "$ZOOKEEPER_LOG" 2>&1 &
     echo $! > /tmp/zookeeper.pid
     sleep 5
-    echo "✅ Zookeeper started."
+    echo " Zookeeper started."
   fi
 
   ZK_PORT=$(get_zookeeper_port)
@@ -93,14 +93,14 @@ start_services() {
 
   # --- Start Kafka ---
   if pgrep -f "kafka.Kafka" > /dev/null; then
-    echo "✅ Kafka is already running."
+    echo " Kafka is already running."
   else
     update_kafka_config
-    echo "🚀 Starting Kafka..."
+    echo " Starting Kafka..."
     nohup "$KAFKA_HOME/bin/kafka-server-start.sh" "$KAFKA_CONFIG" > "$KAFKA_LOG" 2>&1 &
     echo $! > /tmp/kafka.pid
     sleep 8
-    echo "✅ Kafka started."
+    echo " Kafka started."
   fi
 
   KAFKA_PORT=$(get_kafka_port)
@@ -108,13 +108,13 @@ start_services() {
 
   # --- Start Kafka Connect ---
   if pgrep -f "ConnectDistributed" > /dev/null; then
-    echo "✅ Kafka Connect is already running."
+    echo " Kafka Connect is already running."
   else
-    echo "🚀 Starting Kafka Connect..."
+    echo " Starting Kafka Connect..."
     nohup "$KAFKA_HOME/bin/connect-distributed.sh" "$CONNECT_CONFIG" > "$CONNECT_LOG" 2>&1 &
     echo $! > /tmp/connect.pid
     sleep 5
-    echo "✅ Kafka Connect started."
+    echo " Kafka Connect started."
   fi
 
   CONNECT_PORT=$(get_connect_port)
@@ -123,14 +123,14 @@ start_services() {
   VM_IP=$(get_vm_ip)
   echo ""
   echo "════════════════════════════════════════════════════════════"
-  echo "🟢 Service Status Summary:"
+  echo " Service Status Summary:"
   echo " Zookeeper → Port $ZK_PORT"
   echo " Kafka → Port $KAFKA_PORT"
   echo " Kafka Connect → Port $CONNECT_PORT"
   echo ""
-  echo "📍 VM IP Address: $VM_IP"
+  echo " VM IP Address: $VM_IP"
   echo ""
-  echo "📋 Bootstrap Server: $VM_IP:$KAFKA_PORT"
+  echo " Bootstrap Server: $VM_IP:$KAFKA_PORT"
   echo " Connect REST API:  http://$VM_IP:$CONNECT_PORT/"
   echo "════════════════════════════════════════════════════════════"
 }
@@ -140,34 +140,34 @@ start_services() {
 # ------------------------------
 
 stop_services() {
-  echo "🛑 Stopping Kafka Connect..."
+  echo " Stopping Kafka Connect..."
   if [ -f /tmp/connect.pid ]; then
     kill -TERM $(cat /tmp/connect.pid) 2>/dev/null
     rm -f /tmp/connect.pid
-    echo "✅ Kafka Connect stopped via PID file."
+    echo " Kafka Connect stopped via PID file."
   else
-    pkill -f "ConnectDistributed" && echo "✅ Kafka Connect stopped." || echo "⚠️ Kafka Connect not running."
+    pkill -f "ConnectDistributed" && echo " Kafka Connect stopped." || echo " Kafka Connect not running."
   fi
 
-  echo "🛑 Stopping Kafka..."
+  echo " Stopping Kafka..."
   if [ -f /tmp/kafka.pid ]; then
     kill -TERM $(cat /tmp/kafka.pid) 2>/dev/null
     rm -f /tmp/kafka.pid
-    echo "✅ Kafka stopped via PID file."
+    echo " Kafka stopped via PID file."
   else
-    pkill -f "kafka.Kafka" && echo "✅ Kafka stopped." || echo "⚠️ Kafka not running."
+    pkill -f "kafka.Kafka" && echo " Kafka stopped." || echo " Kafka not running."
   fi
 
-  echo "🛑 Stopping Zookeeper..."
+  echo " Stopping Zookeeper..."
   if [ -f /tmp/zookeeper.pid ]; then
     kill -TERM $(cat /tmp/zookeeper.pid) 2>/dev/null
     rm -f /tmp/zookeeper.pid
-    echo "✅ Zookeeper stopped via PID file."
+    echo " Zookeeper stopped via PID file."
   else
-    pkill -f "QuorumPeerMain|zookeeper" && echo "✅ Zookeeper stopped." || echo "⚠️ Zookeeper not running."
+    pkill -f "QuorumPeerMain|zookeeper" && echo " Zookeeper stopped." || echo " Zookeeper not running."
   fi
 
-  echo "🟢 All services stopped gracefully."
+  echo " All services stopped gracefully."
 }
 
 # ------------------------------
@@ -175,29 +175,29 @@ stop_services() {
 # ------------------------------
 
 status_services() {
-  echo "📋 Checking status..."
+  echo " Checking status..."
   echo ""
 
   if pgrep -f "kafka.Kafka" > /dev/null; then
-    echo "✅ Kafka is running."
+    echo " Kafka is running."
   else
-    echo "❌ Kafka is not running."
+    echo " Kafka is not running."
   fi
 
   if pgrep -f "QuorumPeerMain|zookeeper" > /dev/null; then
-    echo "✅ Zookeeper is running."
+    echo " Zookeeper is running."
   else
-    echo "❌ Zookeeper is not running."
+    echo " Zookeeper is not running."
   fi
 
   if pgrep -f "ConnectDistributed" > /dev/null; then
-    echo "✅ Kafka Connect is running."
+    echo " Kafka Connect is running."
   else
-    echo "❌ Kafka Connect is not running."
+    echo " Kafka Connect is not running."
   fi
 
   echo ""
-  echo "💡 Active Ports:"
+  echo " Active Ports:"
   if command -v ss &> /dev/null; then
     ss -tulpn 2>/dev/null | grep -E ":(2181|9092|8083) " || echo " No Kafka/Zookeeper/Connect ports found"
   else

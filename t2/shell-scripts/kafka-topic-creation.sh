@@ -4,7 +4,7 @@
 
 cd /opt/kafka/kafka_2.13-3.9.0/bin
 
-echo "🔧 Creating Kafka topics with 3-month retention (uncompressed)..."
+echo " Creating Kafka topics with 3-month retention (uncompressed)..."
 echo "Server: 192.168.1.38:9092"
 echo ""
 
@@ -12,11 +12,11 @@ echo ""
 create_topic_simple() {
     local topic_name=$1
     
-    echo "📝 Setting up topic: $topic_name"
+    echo " Setting up topic: $topic_name"
     
     # Check if topic exists
     if ./kafka-topics.sh --bootstrap-server 192.168.1.38:9092 --list | grep -q "^$topic_name$"; then
-        echo "✅ Topic $topic_name already exists - updating retention only"
+        echo " Topic $topic_name already exists - updating retention only"
         
         # Update retention for existing topic
         ./kafka-configs.sh --bootstrap-server 192.168.1.38:9092 \
@@ -26,7 +26,7 @@ create_topic_simple() {
           --add-config retention.ms=7776000000,compression.type=uncompressed
           
     else
-        echo "🆕 Creating new topic: $topic_name"
+        echo " Creating new topic: $topic_name"
         
         # Create topic with retention and uncompressed data
         ./kafka-topics.sh --bootstrap-server 192.168.1.38:9092 \
@@ -41,9 +41,9 @@ create_topic_simple() {
     fi
     
     if [ $? -eq 0 ]; then
-        echo "✅ Topic $topic_name configured successfully"
+        echo " Topic $topic_name configured successfully"
     else
-        echo "❌ Failed to configure topic $topic_name"
+        echo " Failed to configure topic $topic_name"
     fi
     echo ""
 }
@@ -54,13 +54,13 @@ create_topic_simple "hourly-rolling-metrics"
 create_topic_simple "daily-peak-metrics"
 create_topic_simple "sensor-availability-metrics"
 
-echo "🎉 All topics configured!"
+echo " All topics configured!"
 echo ""
-echo "📋 Current topics:"
+echo " Current topics:"
 ./kafka-topics.sh --bootstrap-server 192.168.1.38:9092 --list
 
 echo ""
-echo "🔍 Verifying retention settings:"
+echo " Verifying retention settings:"
 for topic in traffic-data hourly-rolling-metrics daily-peak-metrics sensor-availability-metrics; do
     echo "Topic: $topic"
     ./kafka-configs.sh --bootstrap-server 192.168.1.38:9092 \
@@ -70,5 +70,5 @@ for topic in traffic-data hourly-rolling-metrics daily-peak-metrics sensor-avail
 done
 
 echo ""
-echo "✅ Setup complete - ready for real-time streaming!"
-echo "🚀 No compression libraries needed - uses uncompressed data!"
+echo " Setup complete - ready for real-time streaming!"
+echo " No compression libraries needed - uses uncompressed data!"
