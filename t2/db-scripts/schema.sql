@@ -75,11 +75,25 @@ CREATE INDEX idx_availability_status ON sensor_availability_metrics(status);
 CREATE INDEX idx_availability_percentage ON sensor_availability_metrics(availability_percentage);
 CREATE INDEX idx_availability_created ON sensor_availability_metrics(created_at);
 
+-- Drop and recreate the grafana user
+-- Drop and recreate the grafana user (simpler version)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') THEN
+        DROP OWNED BY grafana;
+        DROP USER grafana;
+    END IF;
+END
+$$;
+CREATE USER grafana WITH PASSWORD 'grafana';
+
+-- Grant permissions
+GRANT CONNECT ON DATABASE "traffic-sensor" TO grafana;
+
+-- Grant usage on the schema
+GRANT USAGE ON SCHEMA public TO grafana;
 
 -- Grant SELECT permissions on the specific tables
 GRANT SELECT ON TABLE hourly_sensor_metrics TO grafana;
 GRANT SELECT ON TABLE daily_peak_metrics TO grafana;
 GRANT SELECT ON TABLE sensor_availability_metrics TO grafana;
-
--- Grant usage on the schema
-GRANT USAGE ON SCHEMA public TO grafana;

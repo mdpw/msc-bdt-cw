@@ -144,22 +144,22 @@ class CameraTrafficProducer:
             # Convert "Record ID" to string
             if 'Record ID' in df.columns:
                 df['Record ID'] = df['Record ID'].apply(convert_to_string)
-                logger.info("✅ Converted 'Record ID' to string")
+                logger.info(" Converted 'Record ID' to string")
             
             # Convert "Intersection Name" to string
             if 'Intersection Name' in df.columns:
                 df['Intersection Name'] = df['Intersection Name'].apply(convert_to_string)
-                logger.info("✅ Converted 'Intersection Name' to string")
+                logger.info(" Converted 'Intersection Name' to string")
             
             # Convert "Direction" to string
             if 'Direction' in df.columns:
                 df['Direction'] = df['Direction'].apply(convert_to_string)
-                logger.info("✅ Converted 'Direction' to string")
+                logger.info(" Converted 'Direction' to string")
             
             # Convert "Movement" to string
             if 'Movement' in df.columns:
                 df['Movement'] = df['Movement'].apply(convert_to_string)
-                logger.info("✅ Converted 'Movement' to string")
+                logger.info(" Converted 'Movement' to string")
             
             # Convert "Heavy Vehicle" to boolean
             if 'Heavy Vehicle' in df.columns:
@@ -189,7 +189,7 @@ class CameraTrafficProducer:
                     logger.info(f"  {col}: {sample[col]} ({type(sample[col]).__name__})")
             
             self.total_records = len(df)
-            logger.info(f"✅ Successfully processed {self.total_records} records")
+            logger.info(f" Successfully processed {self.total_records} records")
             return df
             
         except Exception as e:
