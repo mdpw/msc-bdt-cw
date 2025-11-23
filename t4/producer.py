@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Social Media Data Producer - VM Version
-Configured specifically for Kafka running in VirtualBox VM
+Social Media Data Producer - Config-based Version
+Uses config.yml for all configuration settings
 """
 
 import csv
 import json
 import time
 import logging
+import yaml
+import os
 from typing import List, Dict, Any
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
@@ -17,9 +19,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class SocialMediaProducer:
-    def __init__(self, bootstrap_servers: str = 'dinesh-virtualbox:9092'):
-        """Initialize the Kafka producer for VM setup"""
-        self.bootstrap_servers = bootstrap_servers
+    def __init__(self, config_file: str = 'config.yml'):
+        """Initialize the Kafka producer using config file"""
+        self.config = self.load_config(config_file)
         self.producer = None
         self.facebook_data = []
         self.twitter_data = []
@@ -29,47 +31,67 @@ class SocialMediaProducer:
         # Initialize Kafka producer
         self._init_producer()
         
-    def _init_producer(self):
-        """Initialize Kafka producer with VM-specific configuration"""
+    def load_config(self, config_file: str) -> Dict[str, Any]:
+        """Load configuration from YAML file"""
         try:
+            with open(config_file, 'r') as f:
+                config = yaml.safe_load(f)
+            logger.info(f"Configuration loaded from {config_file}")
+            return config
+        except Exception as e:
+            logger.error(f"Failed to load config: {e}")
+            raise
+        
+    def _init_producer(self):
+        """Initialize Kafka producer with config-based settings"""
+        try:
+            bootstrap_servers = self.config['kafka']['servers']
+            timeout_seconds = self.config.get('producer', {}).get('timeout_seconds', 30)
+            
             self.producer = KafkaProducer(
-                bootstrap_servers=self.bootstrap_servers,
+                bootstrap_servers=bootstrap_servers,
                 value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                 key_serializer=lambda k: k.encode('utf-8') if k else None,
                 acks='all',
-                retries=5,  # Increased retries for VM network
-                retry_backoff_ms=500,  # Increased backoff
-                request_timeout_ms=60000,  # 60 seconds timeout
-                max_block_ms=60000,  # 60 seconds block time
-                # Force using the correct broker address
+                retries=5,
+                retry_backoff_ms=500,
+                request_timeout_ms=timeout_seconds * 1000,
+                max_block_ms=timeout_seconds * 1000,
                 security_protocol='PLAINTEXT',
-                # Add connection config for VM
                 connections_max_idle_ms=30000,
                 metadata_max_age_ms=30000
             )
-            logger.info(f"Kafka producer initialized successfully for {self.bootstrap_servers}")
+            logger.info(f"Kafka producer initialized successfully for {bootstrap_servers}")
         except Exception as e:
             logger.error(f"Failed to initialize Kafka producer: {e}")
             raise
 
-    def load_facebook_data(self, csv_file: str):
-        """Load Facebook data from CSV file"""
+    def load_facebook_data(self):
+        """Load Facebook data from CSV file using config"""
         try:
+            data_folder = self.config.get('producer', {}).get('data_folder', 'data')
+            facebook_csv = self.config.get('producer', {}).get('facebook_csv', 'Facebook-datasets.csv')
+            csv_file = os.path.join(data_folder, facebook_csv)
+            
             with open(csv_file, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
-                self.facebook_data = [row for row in reader if any(row.values())]  # Skip empty rows
-            logger.info(f"Loaded {len(self.facebook_data)} Facebook records")
+                self.facebook_data = [row for row in reader if any(row.values())]
+            logger.info(f"Loaded {len(self.facebook_data)} Facebook records from {csv_file}")
         except Exception as e:
             logger.error(f"Failed to load Facebook data: {e}")
             raise
 
-    def load_twitter_data(self, csv_file: str):
-        """Load Twitter data from CSV file"""
+    def load_twitter_data(self):
+        """Load Twitter data from CSV file using config"""
         try:
+            data_folder = self.config.get('producer', {}).get('data_folder', 'data')
+            twitter_csv = self.config.get('producer', {}).get('twitter_csv', 'Twitter-datasets.csv')
+            csv_file = os.path.join(data_folder, twitter_csv)
+            
             with open(csv_file, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
-                self.twitter_data = [row for row in reader if any(row.values())]  # Skip empty rows
-            logger.info(f"Loaded {len(self.twitter_data)} Twitter records")
+                self.twitter_data = [row for row in reader if any(row.values())]
+            logger.info(f"Loaded {len(self.twitter_data)} Twitter records from {csv_file}")
         except Exception as e:
             logger.error(f"Failed to load Twitter data: {e}")
             raise
@@ -87,7 +109,7 @@ class SocialMediaProducer:
         # Clean and prepare the message
         message = {
             'platform': 'facebook',
-            'timestamp': int(time.time() * 1000),  # Current timestamp in milliseconds
+            'timestamp': int(time.time() * 1000),
             'data': {
                 'post_id': record.get('post_id', ''),
                 'user_name': record.get('user_name', ''),
@@ -101,9 +123,11 @@ class SocialMediaProducer:
         }
         
         try:
-            # Send with longer timeout for VM
-            future = self.producer.send('facebook-posts', key=record.get('post_id'), value=message)
-            result = future.get(timeout=30)  # 30 second timeout
+            topic = self.config['kafka']['facebook_topic']
+            timeout = self.config.get('producer', {}).get('timeout_seconds', 30)
+            
+            future = self.producer.send(topic, key=record.get('post_id'), value=message)
+            result = future.get(timeout=timeout)
             logger.info(f"Facebook message sent - Post ID: {record.get('post_id', 'Unknown')[:20]}...")
             return True
         except KafkaError as e:
@@ -126,7 +150,7 @@ class SocialMediaProducer:
         # Clean and prepare the message
         message = {
             'platform': 'twitter',
-            'timestamp': int(time.time() * 1000),  # Current timestamp in milliseconds
+            'timestamp': int(time.time() * 1000),
             'data': {
                 'id': record.get('id', ''),
                 'user_posted': record.get('user_posted', ''),
@@ -144,9 +168,11 @@ class SocialMediaProducer:
         }
         
         try:
-            # Send with longer timeout for VM
-            future = self.producer.send('twitter-posts', key=record.get('id'), value=message)
-            result = future.get(timeout=30)  # 30 second timeout
+            topic = self.config['kafka']['twitter_topic']
+            timeout = self.config.get('producer', {}).get('timeout_seconds', 30)
+            
+            future = self.producer.send(topic, key=record.get('id'), value=message)
+            result = future.get(timeout=timeout)
             logger.info(f"Twitter message sent - Post ID: {record.get('id', 'Unknown')[:20]}...")
             return True
         except KafkaError as e:
@@ -165,29 +191,25 @@ class SocialMediaProducer:
         except (ValueError, TypeError):
             return 0
 
-    def test_connection(self) -> bool:
-        """Test Kafka connection before starting"""
-        try:
-            # Get cluster metadata to test connection
-            metadata = self.producer._metadata
-            if metadata:
-                logger.info("Kafka connection test successful")
-                return True
-            else:
-                logger.error("Kafka connection test failed - no metadata")
-                return False
-        except Exception as e:
-            logger.error(f"Kafka connection test failed: {e}")
-            return False
+    def print_config_summary(self):
+        """Print configuration summary"""
+        print("=" * 50)
+        print("Social Media Producer Configuration")
+        print("=" * 50)
+        print(f"Kafka Server: {self.config['kafka']['servers']}")
+        print(f"Twitter Topic: {self.config['kafka']['twitter_topic']}")
+        print(f"Facebook Topic: {self.config['kafka']['facebook_topic']}")
+        print(f"Data Folder: {self.config.get('producer', {}).get('data_folder', 'data')}")
+        print(f"Streaming Interval: {self.config.get('producer', {}).get('streaming_interval_seconds', 5)} seconds")
+        print(f"Timeout: {self.config.get('producer', {}).get('timeout_seconds', 30)} seconds")
+        print("=" * 50)
 
-    def start_streaming(self, interval: int = 5):
-        """Start streaming data to Kafka topics"""
+    def start_streaming(self):
+        """Start streaming data to Kafka topics using config settings"""
+        interval = self.config.get('producer', {}).get('streaming_interval_seconds', 5)
+        
         logger.info(f"Starting data streaming every {interval} seconds...")
         logger.info("Press Ctrl+C to stop")
-        
-        # Test connection first
-        logger.info("Testing Kafka connection...")
-        time.sleep(2)  # Give producer time to initialize
         
         try:
             message_count = 0
@@ -220,22 +242,21 @@ class SocialMediaProducer:
 
 def main():
     """Main function"""
-    # File paths for data folder
-    facebook_csv = 'data/Facebook-datasets.csv'
-    twitter_csv = 'data/Twitter-datasets.csv'
-    
     try:
-        # Initialize producer
-        logger.info("Starting Social Media Producer for VM...")
+        # Initialize producer with config
+        logger.info("Starting Social Media Producer with config.yml...")
         producer = SocialMediaProducer()
+        
+        # Print configuration summary
+        producer.print_config_summary()
         
         # Load data
         logger.info("Loading CSV data...")
-        producer.load_facebook_data(facebook_csv)
-        producer.load_twitter_data(twitter_csv)
+        producer.load_facebook_data()
+        producer.load_twitter_data()
         
-        # Start streaming (every 5 seconds)
-        producer.start_streaming(interval=5)
+        # Start streaming
+        producer.start_streaming()
         
     except Exception as e:
         logger.error(f"Application error: {e}")
