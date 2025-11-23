@@ -1,7 +1,9 @@
 version: '3.8'
 
 services:
-  # Zookeeper - Required for Kafka
+  # -------------------------
+  # Zookeeper
+  # -------------------------
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -13,7 +15,9 @@ services:
     networks:
       - social-network
 
+  # -------------------------
   # Kafka Broker
+  # -------------------------
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -21,12 +25,11 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
-      - "29092:29092"
+      - "29092:29092"  # internal for containers
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # FIXED: Changed to use VM hostname instead of localhost
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://dinesh-virtualbox:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://192.168.1.38:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -34,7 +37,9 @@ services:
     networks:
       - social-network
 
+  # -------------------------
   # Kafdrop - Kafka UI
+  # -------------------------
   kafdrop:
     image: obsidiandynamics/kafdrop:3.30.0
     container_name: kafdrop
@@ -44,39 +49,57 @@ services:
       - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: kafka:29092
-      JVM_OPTS: "-Xms32M -Xmx64M"
     networks:
       - social-network
 
+  # -------------------------
   # Flink JobManager
+  # -------------------------
   jobmanager:
     image: flink:1.18-scala_2.12
     container_name: flink-jobmanager
     ports:
-      - "8081:8081"
+      - "8081:8081"  # Flink UI
     command: jobmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 2
     networks:
       - social-network
 
-  # Flink TaskManager
-  taskmanager:
+  # -------------------------
+  # Flink TaskManager 1
+  # -------------------------
+  taskmanager1:
     image: flink:1.18-scala_2.12
-    container_name: flink-taskmanager
+    container_name: flink-taskmanager1
     depends_on:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+        taskmanager.memory.process.size: 1024m
     networks:
-      - social-network  
+      - social-network
+
+  # -------------------------
+  # Flink TaskManager 2
+  # -------------------------
+  taskmanager2:
+    image: flink:1.18-scala_2.12
+    container_name: flink-taskmanager2
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        taskmanager.memory.process.size: 1024m
+    networks:
+      - social-network
 
 networks:
   social-network:
