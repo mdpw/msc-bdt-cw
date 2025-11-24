@@ -27,7 +27,7 @@ public class FacebookHashtagCounterScaling {
         private final ObjectMapper mapper = new ObjectMapper();
         private final Pattern hashtagPattern = Pattern.compile("#(\\w+)", Pattern.CASE_INSENSITIVE);
         
-        // SIMPLE METRICS (all serializable)
+        // ENHANCED METRICS FOR STEP 4 COMPARISON
         private int totalMessages = 0;
         private int messagesWithHashtags = 0;
         private int totalHashtags = 0;
@@ -35,12 +35,16 @@ public class FacebookHashtagCounterScaling {
         private long totalProcessingTimeMs = 0;
         private long minLatencyMs = Long.MAX_VALUE;
         private long maxLatencyMs = 0;
+        
+        // STEP 4 SPECIFIC METRICS
+        private int partitionMessages = 0;
 
         @Override
         public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
             // START TIMING
             long startTime = System.currentTimeMillis();
             totalMessages++;
+            partitionMessages++;
             
             try {
                 JsonNode root = mapper.readTree(value);
@@ -79,7 +83,7 @@ public class FacebookHashtagCounterScaling {
             if (latency < minLatencyMs) minLatencyMs = latency;
             if (latency > maxLatencyMs) maxLatencyMs = latency;
             
-            // PRINT METRICS EVERY 100 MESSAGES
+            // PRINT METRICS EVERY 100 MESSAGES WITH STEP 4 INDICATORS
             if (totalMessages % 100 == 0) {
                 printMetrics();
             }
@@ -93,9 +97,10 @@ public class FacebookHashtagCounterScaling {
             double avgLatencyMs = (totalMessages > 0) ? (totalProcessingTimeMs / (double) totalMessages) : 0;
             double throughputPerSec = (avgLatencyMs > 0) ? (1000.0 / avgLatencyMs) : 0;
             
-            System.out.println("\n" + "=".repeat(50));
-            System.out.println("FACEBOOK METRICS (Messages: " + totalMessages + ")");
-            System.out.println("=".repeat(50));
+            System.out.println("\n" + "=".repeat(60));
+            System.out.println("FACEBOOK STEP 4 METRICS (Messages: " + totalMessages + ") 📊");
+            System.out.println("SCALING EXPERIMENT: 2 Partitions + Partition-Aware Watermarking");
+            System.out.println("=".repeat(60));
             
             // ACCURACY
             System.out.println("ACCURACY:");
@@ -111,14 +116,20 @@ public class FacebookHashtagCounterScaling {
             System.out.printf("   Max latency: %d ms%n", maxLatencyMs);
             System.out.printf("   Throughput: %.0f msg/sec%n", throughputPerSec);
             
-            System.out.println("=".repeat(50) + "\n");
+            // STEP 4 SPECIFIC
+            System.out.println("SCALING METRICS:");
+            System.out.printf("   Partition messages: %d%n", partitionMessages);
+            System.out.printf("   Parallelism: ENABLED (2 partitions)%n");
+            System.out.printf("   Watermarking: PARTITION-AWARE%n");
+            
+            System.out.println("=".repeat(60) + "\n");
         }
     }
 
     // Load configuration from YAML file
     private static JsonNode loadConfig() throws Exception {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-        InputStream configStream = FacebookHashtagCounter.class.getClassLoader().getResourceAsStream("config.yml");
+        InputStream configStream = FacebookHashtagCounterScaling.class.getClassLoader().getResourceAsStream("config.yml");
         if (configStream == null) {
             throw new RuntimeException("config.yml not found in resources");
         }
@@ -132,19 +143,25 @@ public class FacebookHashtagCounterScaling {
         // READ VALUES FROM YOUR CONFIG.YML
         String kafkaServers = config.path("kafka").path("container_servers").asText("kafka:29092");
         String facebookTopic = config.path("kafka").path("facebook_topic").asText("facebook-posts");
-        String facebookGroup = config.path("kafka").path("consumer_groups").path("facebook").asText("facebook-counter");
-        int windowSeconds = config.path("flink").path("window_seconds").asInt(15);
-        int watermarkDelaySeconds = config.path("flink").path("watermark_delay_seconds").asInt(20);
+        String facebookGroup = config.path("kafka").path("consumer_groups").path("facebook").asText("facebook-counter-step4");
+        int windowSeconds = config.path("flink").path("window_seconds").asInt(10);  // Reduced from 15 to 10
+        int watermarkDelaySeconds = config.path("flink").path("watermark_delay_seconds").asInt(5);  // Reduced from 20 to 5
 
-        System.out.println("=== FACEBOOK HASHTAG COUNTER CONFIGURATION ===");
+        System.out.println("=== FACEBOOK HASHTAG COUNTER STEP 4 CONFIGURATION ===");
+        System.out.println("SCALING EXPERIMENT: 2 Partitions + Optimizations");
         System.out.println("Kafka Servers: " + kafkaServers);
         System.out.println("Facebook Topic: " + facebookTopic);
         System.out.println("Consumer Group: " + facebookGroup);
         System.out.println("Window Seconds: " + windowSeconds);
         System.out.println("Watermark Delay: " + watermarkDelaySeconds);
-        System.out.println("===============================================");
+        System.out.println("Parallelism: 2 (FORCED)");
+        System.out.println("Partition-Aware Watermarking: ENABLED");
+        System.out.println("=====================================================");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        
+        // STEP 4 KEY OPTIMIZATION: FORCE PARALLELISM = 2
+        env.setParallelism(2);
 
         KafkaSource<String> facebookSource = KafkaSource.<String>builder()
                 .setBootstrapServers(kafkaServers)
@@ -157,7 +174,7 @@ public class FacebookHashtagCounterScaling {
         DataStream<String> facebookStream = env.fromSource(
                 facebookSource,
                 WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(watermarkDelaySeconds))
-                        .withIdleness(Duration.ofSeconds(5))
+                        .withIdleness(Duration.ofSeconds(2))  // 🔧 OPTIMIZED: Reduced from 5 to 2 seconds
                         .withTimestampAssigner((element, ts) -> System.currentTimeMillis()),
                 "FacebookSource"
         );
@@ -168,8 +185,8 @@ public class FacebookHashtagCounterScaling {
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(windowSeconds)))
                 .sum(1);
 
-        hashtagCounts.print("FACEBOOK_HASHTAG_COUNTS");
+        hashtagCounts.print("FACEBOOK_STEP4_HASHTAG_COUNTS");
 
-        env.execute("Facebook Hashtag Counter");
+        env.execute("Facebook Hashtag Counter - Step 4 Scaling");
     }
 }

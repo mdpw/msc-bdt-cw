@@ -1,4 +1,8 @@
 com\example\TwitterHashtagCounter.class
 com\example\FacebookHashtagCounter$HashtagExtractor.class
 com\example\FacebookHashtagCounter.class
+com\example\FacebookHashtagCounterScaling$HashtagExtractor.class
+com\example\FacebookHashtagCounterScaling.class
 com\example\TwitterHashtagCounter$HashtagExtractor.class
+com\example\TwitterHashtagCounterScaling$HashtagExtractor.class
+com\example\TwitterHashtagCounterScaling.class
