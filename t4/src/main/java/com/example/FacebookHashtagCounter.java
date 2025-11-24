@@ -24,9 +24,22 @@ public class FacebookHashtagCounter {
     public static class HashtagExtractor implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private final ObjectMapper mapper = new ObjectMapper();
         private final Pattern hashtagPattern = Pattern.compile("#(\\w+)", Pattern.CASE_INSENSITIVE);
+        
+        // SIMPLE METRICS (all serializable)
+        private int totalMessages = 0;
+        private int messagesWithHashtags = 0;
+        private int totalHashtags = 0;
+        private int parseErrors = 0;
+        private long totalProcessingTimeMs = 0;
+        private long minLatencyMs = Long.MAX_VALUE;
+        private long maxLatencyMs = 0;
 
         @Override
         public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
+            // START TIMING
+            long startTime = System.currentTimeMillis();
+            totalMessages++;
+            
             try {
                 JsonNode root = mapper.readTree(value);
                 JsonNode data = root.path("data");
@@ -38,14 +51,65 @@ public class FacebookHashtagCounter {
                     
                     // Find all hashtags in the text using regex
                     Matcher matcher = hashtagPattern.matcher(commentText);
+                    int hashtagsInMessage = 0;
+                    
                     while (matcher.find()) {
-                        String hashtag = matcher.group(1).toLowerCase(); // Get hashtag without #
+                        String hashtag = matcher.group(1).toLowerCase();
                         out.collect(new Tuple2<>(hashtag, 1));
+                        hashtagsInMessage++;
+                        totalHashtags++;
+                    }
+                    
+                    if (hashtagsInMessage > 0) {
+                        messagesWithHashtags++;
                     }
                 }
+                
             } catch (Exception e) {
-                // ignore invalid JSON
+                parseErrors++;
             }
+            
+            // END TIMING
+            long endTime = System.currentTimeMillis();
+            long latency = endTime - startTime;
+            totalProcessingTimeMs += latency;
+            
+            if (latency < minLatencyMs) minLatencyMs = latency;
+            if (latency > maxLatencyMs) maxLatencyMs = latency;
+            
+            // PRINT METRICS EVERY 100 MESSAGES
+            if (totalMessages % 100 == 0) {
+                printMetrics();
+            }
+        }
+        
+        private void printMetrics() {
+            // Calculate metrics
+            double hashtagCoverage = (totalMessages > 0) ? (messagesWithHashtags * 100.0 / totalMessages) : 0;
+            double avgHashtagsPerMessage = (totalMessages > 0) ? (totalHashtags / (double) totalMessages) : 0;
+            double errorRate = (totalMessages > 0) ? (parseErrors * 100.0 / totalMessages) : 0;
+            double avgLatencyMs = (totalMessages > 0) ? (totalProcessingTimeMs / (double) totalMessages) : 0;
+            double throughputPerSec = (avgLatencyMs > 0) ? (1000.0 / avgLatencyMs) : 0;
+            
+            System.out.println("\n" + "=".repeat(50));
+            System.out.println("📊 FACEBOOK METRICS (Messages: " + totalMessages + ")");
+            System.out.println("=".repeat(50));
+            
+            // ACCURACY
+            System.out.println("🎯 ACCURACY:");
+            System.out.printf("   Messages with hashtags: %d (%.1f%%)%n", messagesWithHashtags, hashtagCoverage);
+            System.out.printf("   Total hashtags found: %d%n", totalHashtags);
+            System.out.printf("   Avg hashtags per message: %.2f%n", avgHashtagsPerMessage);
+            System.out.printf("   Parse errors: %d (%.2f%%)%n", parseErrors, errorRate);
+            
+            // PERFORMANCE
+            System.out.println("⚡ PERFORMANCE:");
+            System.out.printf("   Avg latency: %.2f ms%n", avgLatencyMs);
+            System.out.printf("   Min latency: %d ms%n", (minLatencyMs != Long.MAX_VALUE) ? minLatencyMs : 0);
+            System.out.printf("   Max latency: %d ms%n", maxLatencyMs);
+            System.out.printf("   Throughput: %.0f msg/sec%n", throughputPerSec);
+            
+            System.out.println("=".repeat(50) + "\n");
         }
     }
 
