@@ -2,7 +2,7 @@
 
 A real-time streaming analytics system that processes social media data (Facebook and Twitter) to count hashtag occurrences using Apache Kafka, Apache Flink, and Docker.
 
-## 🚀 Quick Start
+## Quick Start
 
 Follow these commands in order to deploy and run the system:
 
@@ -43,28 +43,72 @@ docker exec -it flink-jobmanager flink run -c com.example.FacebookHashtagCounter
 ### 7. Monitor Hashtag Counts
 ```bash
 # Check TaskManager 1 logs
-docker logs -f flink-taskmanager1 | grep "🏷️"
+docker logs -f flink-taskmanager1 | grep -E "(FACEBOOK_HASHTAG_COUNTS|TWITTER_HASHTAG_COUNTS)"
 
 # Check TaskManager 2 logs  
-docker logs -f flink-taskmanager2 | grep "🏷️"
+docker logs -f flink-taskmanager2 | grep -E "(FACEBOOK_HASHTAG_COUNTS|TWITTER_HASHTAG_COUNTS)"
 ```
 
-## 📊 Expected Output
+## Expected Output
 
 You should see real-time hashtag counts like:
 ```
-🏷️ Facebook HASHTAG COUNTS> (socialmedia,2)
-🏷️ Facebook HASHTAG COUNTS> (feedback,1)
-🏷️ Twitter HASHTAG COUNTS> (trending,3)
-🏷️ Twitter HASHTAG COUNTS> (politics,1)
+FACEBOOK_HASHTAG_COUNTS> (internationalroaming,10)
+FACEBOOK_HASHTAG_COUNTS> (mobileservice,10)
+FACEBOOK_HASHTAG_COUNTS> (travel,10)
+FACEBOOK_HASHTAG_COUNTS> (telecom,27)
+FACEBOOK_HASHTAG_COUNTS> (customerservice,43)
+TWITTER_HASHTAG_COUNTS> (socialmedia,104)
+TWITTER_HASHTAG_COUNTS> (cinema,1)
+TWITTER_HASHTAG_COUNTS> (movies,1)
+TWITTER_HASHTAG_COUNTS> (laligaeasports,1)
+TWITTER_HASHTAG_COUNTS> (ibrox125,1)
+TWITTER_HASHTAG_COUNTS> (celticfc,1)
+TWITTER_HASHTAG_COUNTS> (worldnews,1)
+
 ```
 
-## 🖥️ Web Interfaces
+You should see accuracy, performace metrices like:
+```
+==================================================
+FACEBOOK METRICS (Messages: 200)
+==================================================
+ACCURACY:
+   Messages with hashtags: 194 (97.0%)
+   Total hashtags found: 716
+   Avg hashtags per message: 3.58
+   Parse errors: 0 (0.00%)
+PERFORMANCE:
+   Avg latency: 0.43 ms
+   Min latency: 0 ms
+   Max latency: 20 ms
+   Throughput: 2326 msg/sec
+==================================================
+
+
+==================================================
+TWITTER METRICS (Messages: 200)
+==================================================
+ACCURACY:
+   Messages with hashtags: 200 (100.0%)
+   Total hashtags found: 612
+   Avg hashtags per message: 3.06
+   Parse errors: 0 (0.00%)
+PERFORMANCE:
+   Avg latency: 0.57 ms
+   Min latency: 0 ms
+   Max latency: 18 ms
+   Throughput: 1754 msg/sec
+==================================================
+
+```
+
+## Web Interfaces
 
 - **Flink Dashboard**: http://localhost:8081
 - **Kafdrop (Kafka UI)**: http://localhost:9000
 
-## ⚡ Features
+## Features
 
 - Real-time hashtag counting every 15 seconds
 - Separate processing for Facebook and Twitter streams
@@ -72,7 +116,7 @@ You should see real-time hashtag counts like:
 - Web-based monitoring and management
 - Configurable streaming parameters
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 If you don't see hashtag counts:
 1. Ensure producer.py is running

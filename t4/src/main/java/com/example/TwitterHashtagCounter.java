@@ -14,7 +14,9 @@ import org.apache.flink.util.Collector;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -94,18 +96,18 @@ public class TwitterHashtagCounter {
             double throughputPerSec = (avgLatencyMs > 0) ? (1000.0 / avgLatencyMs) : 0;
             
             System.out.println("\n" + "=".repeat(50));
-            System.out.println("📊 TWITTER METRICS - TEXT ONLY (Messages: " + totalMessages + ")");
+            System.out.println("TWITTER METRICS (Messages: " + totalMessages + ")");
             System.out.println("=".repeat(50));
             
             // IDENTICAL FORMAT AS FACEBOOK
-            System.out.println("🎯 ACCURACY:");
+            System.out.println("ACCURACY:");
             System.out.printf("   Messages with hashtags: %d (%.1f%%)%n", messagesWithHashtags, hashtagCoverage);
             System.out.printf("   Total hashtags found: %d%n", totalHashtags);
             System.out.printf("   Avg hashtags per message: %.2f%n", avgHashtagsPerMessage);
             System.out.printf("   Parse errors: %d (%.2f%%)%n", parseErrors, errorRate);
             
             // IDENTICAL PERFORMANCE SECTION
-            System.out.println("⚡ PERFORMANCE:");
+            System.out.println("PERFORMANCE:");
             System.out.printf("   Avg latency: %.2f ms%n", avgLatencyMs);
             System.out.printf("   Min latency: %d ms%n", (minLatencyMs != Long.MAX_VALUE) ? minLatencyMs : 0);
             System.out.printf("   Max latency: %d ms%n", maxLatencyMs);
@@ -115,12 +117,34 @@ public class TwitterHashtagCounter {
         }
     }
 
+    // Load configuration from YAML file
+    private static JsonNode loadConfig() throws Exception {
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        InputStream configStream = TwitterHashtagCounter.class.getClassLoader().getResourceAsStream("config.yml");
+        if (configStream == null) {
+            throw new RuntimeException("config.yml not found in resources");
+        }
+        return yamlMapper.readTree(configStream);
+    }
+
     public static void main(String[] args) throws Exception {
-        String kafkaServers = "kafka:29092";
-        String twitterTopic = "twitter-posts";
-        String twitterGroup = "twitter-counter-textonly";  // Different group for clean start
-        int windowSeconds = 15;
-        int watermarkDelaySeconds = 5;
+        // LOAD CONFIGURATION FROM FILE
+        JsonNode config = loadConfig();
+        
+        // READ VALUES FROM YOUR CONFIG.YML
+        String kafkaServers = config.path("kafka").path("container_servers").asText("kafka:29092");
+        String twitterTopic = config.path("kafka").path("twitter_topic").asText("twitter-posts");
+        String twitterGroup = config.path("kafka").path("consumer_groups").path("twitter").asText("twitter-counter");
+        int windowSeconds = config.path("flink").path("window_seconds").asInt(15);
+        int watermarkDelaySeconds = config.path("flink").path("watermark_delay_seconds").asInt(20);
+
+        System.out.println("=== TWITTER HASHTAG COUNTER CONFIGURATION ===");
+        System.out.println("Kafka Servers: " + kafkaServers);
+        System.out.println("Twitter Topic: " + twitterTopic);
+        System.out.println("Consumer Group: " + twitterGroup);
+        System.out.println("Window Seconds: " + windowSeconds);
+        System.out.println("Watermark Delay: " + watermarkDelaySeconds);
+        System.out.println("===============================================");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -147,6 +171,6 @@ public class TwitterHashtagCounter {
 
         hashtagCounts.print("TWITTER_HASHTAG_COUNTS");
 
-        env.execute("Twitter Hashtag Counter - Text Only");
+        env.execute("Twitter Hashtag Counter");
     }
 }

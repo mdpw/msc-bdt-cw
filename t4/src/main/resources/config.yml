@@ -1,31 +1,42 @@
+# Social Media Hashtag Counter Configuration
+# This config is used by both producer.py and Flink Java classes
+
 kafka:
-  servers: "192.168.1.38:9092"
-  container_servers: "kafka:29092"
+  servers: "192.168.1.38:9092"           # External access (for producer)
+  container_servers: "kafka:29092"       # Internal Docker access (for Flink)
   twitter_topic: "twitter-posts"
   facebook_topic: "facebook-posts"
-
+  
   offset_reset: "latest"
-
+  
   consumer_groups:
-    twitter: "twitter-counter"
-    facebook: "facebook-counter"
+    twitter: "twitter-counter"             # Used by TwitterHashtagCounter.java
+    facebook: "facebook-counter"           # Used by FacebookHashtagCounter.java
 
 producer:
   data_folder: "data"
   facebook_csv: "Facebook-datasets-enhanced.csv"
   twitter_csv: "Twitter-datasets-enhanced.csv"
-  streaming_interval_seconds: 5
+  streaming_interval_seconds: 0.1         # 10 messages per second (1 FB + 1 TW every 0.1s)
   timeout_seconds: 30
 
 flink:
-  window_seconds: 15
-  watermark_delay_seconds: 20
-  parallelism: 2
+  window_seconds: 15                       # Tumbling window size - Used by Java classes
+  watermark_delay_seconds: 20              # Watermark delay - Used by Java classes
+  parallelism: 2                           # Flink parallelism setting
   job_name: "Social Media Hashtag Counter"
-
+  
+  # Checkpoint configuration
   checkpoint:
     interval_ms: 30000
-
+  
+  # JAR configuration  
   jar:
     kafka_connector_jar: "flink-sql-connector-kafka-1.18.0.jar"
     download_url: "https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.18.0/flink-sql-connector-kafka-1.18.0.jar"
+
+# Metrics configuration
+metrics:
+  print_interval_messages: 100             # Print metrics every N messages
+  enable_performance_tracking: true
+  enable_accuracy_tracking: true
