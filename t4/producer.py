@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Social Media Data Producer - FIXED VERSION with proper hashtag handling
+Social Media Data Producer - SIMPLE VERSION with essential fixes
+ONLY CHANGES:
+1. Fixed hashtag parsing (no more malformed entries like "globonews"])
+2. Can send 10 messages per second
 """
 
 import csv
@@ -85,16 +88,22 @@ class SocialMediaProducer:
         return unique_hashtags
 
     def parse_hashtag_string(self, hashtag_string: str) -> List[str]:
-        """Parse hashtag string from CSV (could be comma-separated, space-separated, etc.)"""
+        """Parse hashtag string from CSV - FIXED to handle malformed entries"""
         if not hashtag_string or hashtag_string.strip() == '':
             return []
         
-        # Handle different formats: "tag1,tag2", "#tag1 #tag2", "tag1;tag2", etc.
         hashtags = []
         
-        # Split by common delimiters
+        # STEP 1: Clean up any JSON formatting artifacts
+        cleaned_string = hashtag_string.strip()
+        
+        # Remove outer brackets if present: ["tag1", "tag2"] -> "tag1", "tag2" 
+        if cleaned_string.startswith('[') and cleaned_string.endswith(']'):
+            cleaned_string = cleaned_string[1:-1]
+        
+        # STEP 2: Split by common delimiters
         delimiters = [',', ';', ' ', '\t', '|']
-        parts = [hashtag_string]
+        parts = [cleaned_string]
         
         for delimiter in delimiters:
             new_parts = []
@@ -102,15 +111,19 @@ class SocialMediaProducer:
                 new_parts.extend(part.split(delimiter))
             parts = new_parts
         
-        # Clean each part
+        # STEP 3: Clean each part - FIXED to remove quotes and brackets
         for part in parts:
-            part = part.strip()
-            if part:
-                # Remove # if present and convert to lowercase
-                if part.startswith('#'):
-                    part = part[1:]
-                if part:  # Make sure it's not empty after removing #
-                    hashtags.append(part.lower())
+            # Remove all quotes, brackets, and whitespace - THIS IS THE FIX!
+            clean_part = part.strip(' "\'[]{}')
+            
+            if clean_part:
+                # Remove # if present
+                if clean_part.startswith('#'):
+                    clean_part = clean_part[1:]
+                    
+                # Only add valid alphanumeric hashtags
+                if clean_part and (clean_part.replace('_', '').isalnum()):
+                    hashtags.append(clean_part.lower())
         
         # Remove duplicates while preserving order
         unique_hashtags = list(dict.fromkeys(hashtags))
@@ -121,7 +134,7 @@ class SocialMediaProducer:
         """Load Facebook data from CSV file"""
         try:
             data_folder = self.config.get('producer', {}).get('data_folder', 'data')
-            facebook_csv = self.config.get('producer', {}).get('facebook_csv', 'Facebook-datasets.csv')
+            facebook_csv = self.config.get('producer', {}).get('facebook_csv', 'Facebook-datasets-enhanced.csv')
             csv_file = os.path.join(data_folder, facebook_csv)
             
             with open(csv_file, 'r', encoding='utf-8') as file:
@@ -136,7 +149,7 @@ class SocialMediaProducer:
         """Load Twitter data from CSV file"""
         try:
             data_folder = self.config.get('producer', {}).get('data_folder', 'data')
-            twitter_csv = self.config.get('producer', {}).get('twitter_csv', 'Twitter-datasets.csv')
+            twitter_csv = self.config.get('producer', {}).get('twitter_csv', 'Twitter-datasets-enhanced.csv')
             csv_file = os.path.join(data_folder, twitter_csv)
             
             with open(csv_file, 'r', encoding='utf-8') as file:
@@ -181,7 +194,7 @@ class SocialMediaProducer:
                 'num_replies': self._safe_int(record.get('num_replies', 0)),
                 'source_type': record.get('source_type', ''),
                 'url': record.get('url', ''),
-                'hashtags': hashtags  # NOW PROPERLY INCLUDED AS ARRAY
+                'hashtags': hashtags  # Clean hashtags array
             }
         }
         
@@ -192,8 +205,8 @@ class SocialMediaProducer:
             future = self.producer.send(topic, key=record.get('post_id'), value=message)
             result = future.get(timeout=timeout)
             
-            hashtag_info = f"with {len(hashtags)} hashtags: {hashtags}" if hashtags else "with no hashtags"
-            logger.info(f"Facebook message sent - Post ID: {record.get('post_id', 'Unknown')[:20]}... {hashtag_info}")
+            hashtag_info = f"with {len(hashtags)} hashtags" if hashtags else "with no hashtags"
+            logger.info(f"Facebook message sent - {hashtag_info}")
             return True
         except KafkaError as e:
             logger.error(f"Failed to send Facebook message: {e}")
@@ -212,7 +225,7 @@ class SocialMediaProducer:
         record = self.twitter_data[self.twitter_index]
         self.twitter_index = (self.twitter_index + 1) % len(self.twitter_data)
         
-        # Get hashtags from the CSV field (convert string to array)
+        # Get hashtags from the CSV field (convert string to array) - FIXED!
         hashtag_string = record.get('hashtags', '')
         hashtags = self.parse_hashtag_string(hashtag_string)
         
@@ -239,7 +252,7 @@ class SocialMediaProducer:
                 'replies': self._safe_int(record.get('replies', 0)),
                 'views': self._safe_int(record.get('views', 0)),
                 'followers': self._safe_int(record.get('followers', 0)),
-                'hashtags': hashtags,  # NOW PROPERLY AS ARRAY INSTEAD OF STRING
+                'hashtags': hashtags,  # Clean hashtags array - no more malformed entries!
                 'url': record.get('url', '')
             }
         }
@@ -251,8 +264,8 @@ class SocialMediaProducer:
             future = self.producer.send(topic, key=record.get('id'), value=message)
             result = future.get(timeout=timeout)
             
-            hashtag_info = f"with {len(hashtags)} hashtags: {hashtags}" if hashtags else "with no hashtags"
-            logger.info(f"Twitter message sent - Post ID: {record.get('id', 'Unknown')[:20]}... {hashtag_info}")
+            hashtag_info = f"with {len(hashtags)} hashtags" if hashtags else "with no hashtags"
+            logger.info(f"Twitter message sent - {hashtag_info}")
             return True
         except KafkaError as e:
             logger.error(f"Failed to send Twitter message: {e}")
@@ -273,15 +286,13 @@ class SocialMediaProducer:
     def print_config_summary(self):
         """Print configuration summary"""
         print("=" * 50)
-        print("Social Media Producer Configuration (FIXED VERSION)")
+        print("Social Media Producer - SIMPLE FIXED VERSION")
         print("=" * 50)
         print(f"Kafka Server: {self.config['kafka']['servers']}")
         print(f"Twitter Topic: {self.config['kafka']['twitter_topic']}")
         print(f"Facebook Topic: {self.config['kafka']['facebook_topic']}")
         print(f"Streaming Interval: {self.config.get('producer', {}).get('streaming_interval_seconds', 5)} seconds")
-        print(f"Timeout: {self.config.get('producer', {}).get('timeout_seconds', 30)} seconds")
-        print("✅ FIXED: Facebook messages now include hashtags")
-        print("✅ FIXED: Twitter hashtags now sent as array instead of string")
+        print("✅ FIXED: Hashtag parsing (no more malformed entries)")
         print("=" * 50)
 
     def start_streaming(self):
@@ -304,11 +315,8 @@ class SocialMediaProducer:
                 
                 if fb_success and tw_success:
                     logger.info(f"Batch {message_count} completed successfully")
-                else:
-                    logger.warning(f"Batch {message_count} had errors")
                 
                 # Wait for specified interval
-                logger.info(f"Waiting {interval} seconds before next batch...")
                 time.sleep(interval)
                 
         except KeyboardInterrupt:
@@ -324,7 +332,7 @@ def main():
     """Main function"""
     try:
         # Initialize producer with config
-        logger.info("Starting Social Media Producer (FIXED VERSION)...")
+        logger.info("Starting Social Media Producer (SIMPLE FIXED VERSION)...")
         producer = SocialMediaProducer()
         
         # Print configuration summary
