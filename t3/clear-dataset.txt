@@ -1,0 +1,2 @@
+// 1️⃣ Clear any existing data
+MATCH (n) DETACH DELETE n;
