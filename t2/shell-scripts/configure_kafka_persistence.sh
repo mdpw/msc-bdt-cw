@@ -19,9 +19,9 @@ echo " Configuring Kafka Data Persistence"
 echo "====================================="
 echo ""
 echo " Goals:"
-echo "  • Data survives VM shutdown/restart"
-echo "  • Persistent storage configuration"
-echo "  • Manual backup/restore capabilities"
+echo "  Data survives VM shutdown/restart"
+echo "  Persistent storage configuration"
+echo "  Manual backup/restore capabilities"
 echo ""
 
 # =====================================================
@@ -106,7 +106,7 @@ configure_kafka_persistence() {
     # Configure log retention for persistence (3 months)
     update_or_add_config "log.retention.ms" "7776000000" "$KAFKA_CONFIG"
     update_or_add_config "log.retention.bytes" "107374182400" "$KAFKA_CONFIG"
-    update_or_add_config "compression.type" "none" "$KAFKA_CONFIG"
+    update_or_add_config "compression.type" "uncompressed" "$KAFKA_CONFIG"
     
     echo " Kafka configured for persistent storage"
     echo ""
@@ -356,9 +356,7 @@ main_setup() {
 
 show_setup_summary() {
     echo ""
-    echo "════════════════════════════════════════════════════════════"
     echo " Kafka Data Persistence Setup Complete!"
-    echo "════════════════════════════════════════════════════════════"
     echo ""
     echo " Data Directories:"
     echo "   Kafka:     $KAFKA_DATA_DIR"
@@ -375,7 +373,7 @@ show_setup_summary() {
     echo ""
     echo " Before VM Shutdown - ALWAYS run:"
     echo "   $BACKUP_BASE_DIR/graceful_shutdown.sh"
-    echo "════════════════════════════════════════════════════════════"
+    
 }
 
 # =====================================================

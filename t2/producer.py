@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Simple CSV-based Real-time Austin Camera Traffic Counts Data Producer
-Clean and simple data processing with specific type conversions
-"""
-
 import json
 import time
 import logging

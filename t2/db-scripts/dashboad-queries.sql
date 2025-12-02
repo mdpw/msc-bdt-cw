@@ -20,16 +20,13 @@ SELECT
 FROM sensor_availability_metrics 
 WHERE date = (SELECT MAX(date) FROM sensor_availability_metrics);
 
---Hourly Traffic Volume by Sensor - Last 3 Days
+--Hourly average vehicle count per sensor - Last 3 Days
 SELECT 
     (date + INTERVAL '1 hour' * hour) AS time,
     CONCAT('Sensor ', atd_device_id) AS metric,
-    total_hourly_volume AS value
+    average_per_record AS value
 FROM hourly_sensor_metrics 
-WHERE date BETWEEN 
-    (SELECT MAX(date) - INTERVAL '2 day' FROM hourly_sensor_metrics) 
-    AND 
-    (SELECT MAX(date) FROM hourly_sensor_metrics)
+WHERE date BETWEEN $__timeFrom()::date AND $__timeTo()::date
 ORDER BY time, atd_device_id;
 
 --Sensor Availability - Today

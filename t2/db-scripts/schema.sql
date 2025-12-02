@@ -1,6 +1,6 @@
 -- =====================================================
 -- DROP AND RECREATE CAMERA TRAFFIC METRICS TABLES
--- Minimal Schema - Tables with Indexes Only
+-- Complete Schema with Proper Permissions
 -- =====================================================
 
 -- =====================================================
@@ -75,25 +75,71 @@ CREATE INDEX idx_availability_status ON sensor_availability_metrics(status);
 CREATE INDEX idx_availability_percentage ON sensor_availability_metrics(availability_percentage);
 CREATE INDEX idx_availability_created ON sensor_availability_metrics(created_at);
 
--- Drop and recreate the grafana user
--- Drop and recreate the grafana user (simpler version)
+-- =====================================================
+-- CREATE GRAFANA USER AND GRANT PERMISSIONS
+-- IMPORTANT: User creation MUST come AFTER table creation
+-- =====================================================
+
+-- Drop and recreate the grafana user (if exists)
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') THEN
-        DROP OWNED BY grafana;
+        REASSIGN OWNED BY grafana TO admin;
+        DROP OWNED BY grafana CASCADE;
         DROP USER grafana;
     END IF;
 END
 $$;
+
+-- Create grafana user with password
 CREATE USER grafana WITH PASSWORD 'grafana';
 
--- Grant permissions
+-- Grant database connection permission
 GRANT CONNECT ON DATABASE "traffic-sensor" TO grafana;
 
--- Grant usage on the schema
+-- Grant schema usage permission
 GRANT USAGE ON SCHEMA public TO grafana;
 
--- Grant SELECT permissions on the specific tables
+-- Grant SELECT permissions on all three tables
 GRANT SELECT ON TABLE hourly_sensor_metrics TO grafana;
 GRANT SELECT ON TABLE daily_peak_metrics TO grafana;
 GRANT SELECT ON TABLE sensor_availability_metrics TO grafana;
+
+-- Grant SELECT on all sequences (for id columns, useful for future)
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
+
+-- Set default privileges for any future tables created by admin
+ALTER DEFAULT PRIVILEGES FOR ROLE admin IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
+
+-- =====================================================
+-- VERIFICATION QUERIES (Optional - Run After Schema)
+-- =====================================================
+
+-- Verify tables were created
+SELECT 
+    tablename, 
+    schemaname 
+FROM pg_tables 
+WHERE schemaname = 'public' 
+    AND tablename IN ('hourly_sensor_metrics', 'daily_peak_metrics', 'sensor_availability_metrics')
+ORDER BY tablename;
+
+-- Verify grafana user permissions
+SELECT 
+    grantee, 
+    table_name, 
+    privilege_type
+FROM information_schema.role_table_grants 
+WHERE grantee = 'grafana' 
+    AND table_schema = 'public'
+ORDER BY table_name, privilege_type;
+
+-- Verify indexes were created
+SELECT 
+    tablename, 
+    indexname, 
+    indexdef
+FROM pg_indexes 
+WHERE schemaname = 'public' 
+    AND tablename IN ('hourly_sensor_metrics', 'daily_peak_metrics', 'sensor_availability_metrics')
+ORDER BY tablename, indexname;

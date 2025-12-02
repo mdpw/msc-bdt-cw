@@ -104,7 +104,7 @@ start_services() {
   fi
 
   KAFKA_PORT=$(get_kafka_port)
-  check_port "$KAFKA_PORT" && echo "🔌 Kafka listening on port: $KAFKA_PORT"
+  check_port "$KAFKA_PORT" && echo " Kafka listening on port: $KAFKA_PORT"
 
   # --- Start Kafka Connect ---
   if pgrep -f "ConnectDistributed" > /dev/null; then
