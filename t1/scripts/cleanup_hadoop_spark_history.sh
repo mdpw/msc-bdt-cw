@@ -17,7 +17,7 @@ print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-echo "🧹 COMPLETE HADOOP/SPARK JOB HISTORY CLEANUP"
+echo " COMPLETE HADOOP/SPARK JOB HISTORY CLEANUP"
 echo "============================================="
 
 # Step 1: Stop all services
@@ -160,10 +160,10 @@ print_status "Waiting for services to fully start..."
 sleep 15
 
 echo ""
-echo "🎯 VERIFICATION - Check these URLs (should show no job history):"
-echo "📊 YARN Applications: http://localhost:8088/cluster/apps"
-echo "📋 MapReduce Job History: http://localhost:19888/jobhistory"
-echo "⚡ Spark History: http://localhost:18080"
+echo " VERIFICATION - Check these URLs (should show no job history):"
+echo " YARN Applications: http://localhost:8088/cluster/apps"
+echo " MapReduce Job History: http://localhost:19888/jobhistory"
+echo " Spark History: http://localhost:18080"
 
 echo ""
 print_status "Checking service status..."
@@ -171,7 +171,7 @@ print_status "Checking service status..."
 # Check YARN
 if curl -s http://localhost:8088/ws/v1/cluster/apps >/dev/null 2>&1; then
     YARN_APPS=$(curl -s http://localhost:8088/ws/v1/cluster/apps | grep -o '"totalApplications":[0-9]*' | cut -d: -f2 2>/dev/null || echo "0")
-    echo "📊 YARN Applications count: $YARN_APPS"
+    echo " YARN Applications count: $YARN_APPS"
 else
     print_warning "YARN ResourceManager not accessible"
 fi
@@ -191,10 +191,10 @@ else
 fi
 
 echo ""
-print_success "✅ COMPLETE CLEANUP FINISHED!"
+print_success " COMPLETE CLEANUP FINISHED!"
 echo ""
-echo "🔄 If job history still appears, it may be cached in your browser."
-echo "💡 Try refreshing the pages or opening in incognito/private mode."
+echo " If job history still appears, it may be cached in your browser."
+echo " Try refreshing the pages or opening in incognito/private mode."
 echo ""
-echo "📝 To verify cleanup worked, run a new job and check if only"
+echo " To verify cleanup worked, run a new job and check if only"
 echo "   the new job appears in the history (not old ones)."

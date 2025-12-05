@@ -94,7 +94,7 @@ log_both "----------------------------------------"
 log_both "Job exit status: $EXIT_CODE"
 
 if [ $EXIT_CODE -eq 0 ]; then
-    log_both "✓ PARTITIONING OPTIMIZED Spark completed successfully!"
+    log_both " PARTITIONING OPTIMIZED Spark completed successfully!"
     log_both "Execution time: $EXECUTION_TIME seconds"
     
     if [ -f "$OUTPUT_DIR/part-00000" ]; then
@@ -120,7 +120,7 @@ if [ $EXIT_CODE -eq 0 ]; then
         log_both "WARNING: No output part files found!"
     fi
 else
-    log_both "✗ PARTITIONING OPTIMIZED Spark failed!"
+    log_both " PARTITIONING OPTIMIZED Spark failed!"
     log_both "Exit code: $EXIT_CODE"
 fi
 

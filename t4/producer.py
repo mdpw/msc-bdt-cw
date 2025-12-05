@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-"""
-Social Media Data Producer - SIMPLE VERSION with essential fixes
-ONLY CHANGES:
-1. Fixed hashtag parsing (no more malformed entries like "globonews"])
-2. Can send 10 messages per second
-"""
-
 import csv
 import json
 import time
@@ -292,7 +284,7 @@ class SocialMediaProducer:
         print(f"Twitter Topic: {self.config['kafka']['twitter_topic']}")
         print(f"Facebook Topic: {self.config['kafka']['facebook_topic']}")
         print(f"Streaming Interval: {self.config.get('producer', {}).get('streaming_interval_seconds', 5)} seconds")
-        print("✅ FIXED: Hashtag parsing (no more malformed entries)")
+        print(" FIXED: Hashtag parsing (no more malformed entries)")
         print("=" * 50)
 
     def start_streaming(self):

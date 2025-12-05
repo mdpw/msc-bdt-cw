@@ -1,8 +1,3 @@
-"""
-Step 3: PyFlink Stream Processing - Assignment Implementation
-Processes both Twitter and Facebook streams with proper watermarks and windowing
-"""
-
 import json
 import re
 import yaml
@@ -186,9 +181,9 @@ def main():
     # Load configuration
     try:
         config = load_config()
-        print(f"✓ Config loaded - Kafka: {config['kafka']['servers']}")
+        print(f" Config loaded - Kafka: {config['kafka']['servers']}")
     except Exception as e:
-        print(f"✗ Failed to load config: {e}")
+        print(f" Failed to load config: {e}")
         return 1
     
     try:
@@ -198,10 +193,10 @@ def main():
         
         # Enable checkpointing (fault tolerance)
         env.enable_checkpointing(config['flink']['checkpoint']['interval_ms'])
-        print(f"✓ Checkpointing enabled: {config['flink']['checkpoint']['interval_ms']}ms")
+        print(f" Checkpointing enabled: {config['flink']['checkpoint']['interval_ms']}ms")
         
         # Create processing pipelines for both sources
-        print("✓ Creating Twitter processing pipeline...")
+        print(" Creating Twitter processing pipeline...")
         twitter_results = create_processing_pipeline(
             env=env,
             config=config,
@@ -211,7 +206,7 @@ def main():
             extract_function=HashtagExtractor.extract_twitter_hashtags
         )
         
-        print("✓ Creating Facebook processing pipeline...")
+        print(" Creating Facebook processing pipeline...")
         facebook_results = create_processing_pipeline(
             env=env,
             config=config,
@@ -222,7 +217,7 @@ def main():
         )
         
         # Create combined stream for comparison analysis
-        print("✓ Creating combined analysis stream...")
+        print(" Creating combined analysis stream...")
         combined_stream = twitter_results.union(facebook_results).name("combined-analysis")
         
         # Print all results for analysis
@@ -232,41 +227,41 @@ def main():
         
         # Assignment implementation summary
         print("=" * 70)
-        print("🚀 STEP 3 ASSIGNMENT IMPLEMENTATION SUMMARY:")
+        print(" STEP 3 ASSIGNMENT IMPLEMENTATION SUMMARY:")
         print("=" * 70)
-        print("✓ Two Flink streaming applications created")
-        print("✓ Reading from two Kafka topics (twitter-posts, facebook-posts)")
-        print("✓ Counting hashtags every 15 seconds using Tumbling Windows")
-        print(f"✓ Watermarks implemented: {config['flink']['watermark_delay_seconds']}s bounded out-of-orderness")
-        print("✓ Built-in watermarks for handling out-of-order events")
-        print("✓ Checkpointing enabled for fault tolerance")
-        print("✓ Separate processing pipelines for accuracy comparison")
-        print("✓ Performance metrics available via Flink Web UI")
+        print(" Two Flink streaming applications created")
+        print(" Reading from two Kafka topics (twitter-posts, facebook-posts)")
+        print(" Counting hashtags every 15 seconds using Tumbling Windows")
+        print(f" Watermarks implemented: {config['flink']['watermark_delay_seconds']}s bounded out-of-orderness")
+        print(" Built-in watermarks for handling out-of-order events")
+        print(" Checkpointing enabled for fault tolerance")
+        print(" Separate processing pipelines for accuracy comparison")
+        print(" Performance metrics available via Flink Web UI")
         print("=" * 70)
-        print(f"📊 Configuration:")
+        print(f" Configuration:")
         print(f"   - Window Size: {config['flink']['window_seconds']} seconds")
         print(f"   - Watermark Delay: {config['flink']['watermark_delay_seconds']} seconds") 
         print(f"   - Parallelism: {config['flink']['parallelism']}")
         print(f"   - Kafka Server: {config['kafka']['servers']}")
         print(f"   - Job Name: {config['flink']['job_name']}")
         print("=" * 70)
-        print("📈 For Performance Analysis:")
+        print(" For Performance Analysis:")
         print("   - Accuracy: Compare individual vs combined counts")
         print("   - Latency: Monitor end-to-end processing time")
         print("   - Throughput: Check records/second in Flink UI")
         print("   - Resource Usage: Monitor CPU/Memory via system tools")
         print("=" * 70)
-        print("🎯 Starting execution... Press Ctrl+C to stop")
+        print(" Starting execution... Press Ctrl+C to stop")
         print("=" * 70)
         
         # Execute the Flink job
         env.execute(config['flink']['job_name'])
         
     except KeyboardInterrupt:
-        print("\n👋 Stopped by user")
+        print("\n Stopped by user")
         return 0
     except Exception as e:
-        print(f"\n✗ Error: {e}")
+        print(f"\n Error: {e}")
         import traceback
         traceback.print_exc()
         return 1

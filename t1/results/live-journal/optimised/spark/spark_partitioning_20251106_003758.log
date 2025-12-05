@@ -115,7 +115,7 @@ Spark UI: http://localhost:4040
 ==================================================
 ----------------------------------------
 Job exit status: 0
-✓ PARTITIONING OPTIMIZED Spark completed successfully!
+ PARTITIONING OPTIMIZED Spark completed successfully!
 Execution time: 240 seconds
 
 === RESULTS ===

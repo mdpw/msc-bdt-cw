@@ -36,18 +36,18 @@ check_service() {
     
     if [ -n "$port" ]; then
         if netstat -ln 2>/dev/null | grep -q ":$port "; then
-            echo "✅ Running"
+            echo " Running"
             return 0
         else
-            echo "❌ Not running"
+            echo " Not running"
             return 1
         fi
     else
         if jps | grep -q "$service_name"; then
-            echo "✅ Running"
+            echo " Running"
             return 0
         else
-            echo "❌ Not running"
+            echo " Not running"
             return 1
         fi
     fi
@@ -192,11 +192,11 @@ stop_services() {
 # Function to show service status
 show_status() {
     echo "=================================================="
-    echo "🔍 HADOOP & SPARK SERVICES STATUS"
+    echo " HADOOP & SPARK SERVICES STATUS"
     echo "=================================================="
     
     echo ""
-    echo "📊 HDFS Services:"
+    echo " HDFS Services:"
     printf "   NameNode (9870):        "
     check_service "NameNode" "9870"
     printf "   DataNode:               "
@@ -205,32 +205,32 @@ show_status() {
     check_service "SecondaryNameNode"
     
     echo ""
-    echo "🧮 YARN Services:"
+    echo " YARN Services:"
     printf "   ResourceManager (8088): "
     check_service "ResourceManager" "8088"
     printf "   NodeManager:            "
     check_service "NodeManager"
     
     echo ""
-    echo "📚 History Services:"
+    echo " History Services:"
     printf "   MapReduce History (19888): "
     check_service "JobHistoryServer" "19888"
     printf "   Spark History (18080):     "
     check_service "HistoryServer" "18080"
     
     echo ""
-    echo "🌐 Web UIs (if services are running):"
+    echo " Web UIs (if services are running):"
     if check_service "NameNode" "9870" >/dev/null 2>&1; then
-        echo "   📊 HDFS: http://localhost:9870"
+        echo "    HDFS: http://localhost:9870"
     fi
     if check_service "ResourceManager" "8088" >/dev/null 2>&1; then
-        echo "   🧮 YARN: http://localhost:8088"
+        echo "    YARN: http://localhost:8088"
     fi
     if check_service "JobHistoryServer" "19888" >/dev/null 2>&1; then
-        echo "   📚 MapReduce History: http://localhost:19888"
+        echo "    MapReduce History: http://localhost:19888"
     fi
     if check_service "HistoryServer" "18080" >/dev/null 2>&1; then
-        echo "   📈 Spark History: http://localhost:18080"
+        echo "    Spark History: http://localhost:18080"
     fi
     
     echo ""
@@ -252,21 +252,21 @@ restart_services() {
 # Main script logic
 case $ACTION in
     start)
-        echo "🚀 Starting Hadoop and Spark Services"
+        echo " Starting Hadoop and Spark Services"
         echo "======================================"
         start_services
         echo ""
         show_status
         ;;
     stop)
-        echo "🛑 Stopping Hadoop and Spark Services"
+        echo " Stopping Hadoop and Spark Services"
         echo "======================================"
         stop_services
         echo ""
         show_status
         ;;
     restart)
-        echo "🔄 Restarting Hadoop and Spark Services"
+        echo " Restarting Hadoop and Spark Services"
         echo "========================================"
         restart_services
         echo ""
