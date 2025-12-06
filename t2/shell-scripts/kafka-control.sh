@@ -89,7 +89,7 @@ start_services() {
   fi
 
   ZK_PORT=$(get_zookeeper_port)
-  check_port "$ZK_PORT" && echo "🔌 Zookeeper listening on port: $ZK_PORT"
+  check_port "$ZK_PORT" && echo " Zookeeper listening on port: $ZK_PORT"
 
   # --- Start Kafka ---
   if pgrep -f "kafka.Kafka" > /dev/null; then
