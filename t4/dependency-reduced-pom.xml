@@ -7,6 +7,13 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>${java.version}</release>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.4.1</version>
         <executions>
@@ -17,9 +24,7 @@
             </goals>
             <configuration>
               <transformers>
-                <transformer>
-                  <mainClass>com.example.HashtagCounterJob</mainClass>
-                </transformer>
+                <transformer />
               </transformers>
             </configuration>
           </execution>

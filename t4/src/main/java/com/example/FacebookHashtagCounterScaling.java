@@ -8,7 +8,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
@@ -98,8 +98,8 @@ public class FacebookHashtagCounterScaling {
             double throughputPerSec = (avgLatencyMs > 0) ? (1000.0 / avgLatencyMs) : 0;
             
             System.out.println("\n" + "=".repeat(60));
-            System.out.println("FACEBOOK STEP 4 METRICS (Messages: " + totalMessages + ") 📊");
-            System.out.println("SCALING EXPERIMENT: 2 Partitions + Partition-Aware Watermarking");
+            System.out.println("FACEBOOK STEP 4 METRICS (Messages: " + totalMessages + ") ");
+            System.out.println("SCALING EXPERIMENT: 2 Partitions + Parallelism");
             System.out.println("=".repeat(60));
             
             // ACCURACY
@@ -140,28 +140,29 @@ public class FacebookHashtagCounterScaling {
         // LOAD CONFIGURATION FROM FILE
         JsonNode config = loadConfig();
         
-        // READ VALUES FROM YOUR CONFIG.YML
+        // Read ALL values from config.yml (same as Step 3)
         String kafkaServers = config.path("kafka").path("container_servers").asText("kafka:29092");
         String facebookTopic = config.path("kafka").path("facebook_topic").asText("facebook-posts");
-        String facebookGroup = config.path("kafka").path("consumer_groups").path("facebook").asText("facebook-counter-step4");
-        int windowSeconds = config.path("flink").path("window_seconds").asInt(10);  // Reduced from 15 to 10
-        int watermarkDelaySeconds = config.path("flink").path("watermark_delay_seconds").asInt(5);  // Reduced from 20 to 5
+        String facebookGroup = config.path("kafka").path("consumer_groups").path("facebook").asText("facebook-counter");
+        int windowSeconds = config.path("flink").path("window_seconds").asInt(15);  
+        int watermarkDelaySeconds = config.path("flink").path("watermark_delay_seconds").asInt(20); 
+        int parallelism = config.path("flink").path("parallelism").asInt(2); 
 
         System.out.println("=== FACEBOOK HASHTAG COUNTER STEP 4 CONFIGURATION ===");
-        System.out.println("SCALING EXPERIMENT: 2 Partitions + Optimizations");
+        System.out.println("SCALING EXPERIMENT: 2 Partitions + Parallelism");
         System.out.println("Kafka Servers: " + kafkaServers);
         System.out.println("Facebook Topic: " + facebookTopic);
         System.out.println("Consumer Group: " + facebookGroup);
         System.out.println("Window Seconds: " + windowSeconds);
-        System.out.println("Watermark Delay: " + watermarkDelaySeconds);
-        System.out.println("Parallelism: 2 (FORCED)");
-        System.out.println("Partition-Aware Watermarking: ENABLED");
-        System.out.println("=====================================================");
+        System.out.println("Watermark Delay: " + watermarkDelaySeconds + "s");
+        System.out.println("Parallelism: " + parallelism);
+        System.out.println("Window Type: EVENT TIME (with watermarks)");
+        System.out.println("======================================================");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         
-        // STEP 4 KEY OPTIMIZATION: FORCE PARALLELISM = 2
-        env.setParallelism(2);
+        // STEP 4 KEY CHANGE: FORCE PARALLELISM (from config)
+        env.setParallelism(parallelism);
 
         KafkaSource<String> facebookSource = KafkaSource.<String>builder()
                 .setBootstrapServers(kafkaServers)
@@ -171,18 +172,19 @@ public class FacebookHashtagCounterScaling {
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
+        // Same watermark strategy as Step 3 (for fair comparison)
         DataStream<String> facebookStream = env.fromSource(
                 facebookSource,
                 WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(watermarkDelaySeconds))
-                        .withIdleness(Duration.ofSeconds(2))  // 🔧 OPTIMIZED: Reduced from 5 to 2 seconds
                         .withTimestampAssigner((element, ts) -> System.currentTimeMillis()),
                 "FacebookSource"
         );
 
+        // Using Event Time windows (same as Step 3)
         DataStream<Tuple2<String, Integer>> hashtagCounts = facebookStream
                 .flatMap(new HashtagExtractor())
                 .keyBy(value -> value.f0)
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(windowSeconds)))
+                .window(TumblingEventTimeWindows.of(Time.seconds(windowSeconds)))
                 .sum(1);
 
         hashtagCounts.print("FACEBOOK_STEP4_HASHTAG_COUNTS");

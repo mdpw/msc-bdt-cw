@@ -8,7 +8,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
@@ -27,7 +27,7 @@ public class FacebookHashtagCounter {
         private final ObjectMapper mapper = new ObjectMapper();
         private final Pattern hashtagPattern = Pattern.compile("#(\\w+)", Pattern.CASE_INSENSITIVE);
         
-        // SIMPLE METRICS (all serializable)
+        // METRICS FOR COMPARISON (all serializable)
         private int totalMessages = 0;
         private int messagesWithHashtags = 0;
         private int totalHashtags = 0;
@@ -129,7 +129,7 @@ public class FacebookHashtagCounter {
         // LOAD CONFIGURATION FROM FILE
         JsonNode config = loadConfig();
         
-        // READ VALUES FROM YOUR CONFIG.YML
+        // READ VALUES FROM CONFIG.YML
         String kafkaServers = config.path("kafka").path("container_servers").asText("kafka:29092");
         String facebookTopic = config.path("kafka").path("facebook_topic").asText("facebook-posts");
         String facebookGroup = config.path("kafka").path("consumer_groups").path("facebook").asText("facebook-counter");
@@ -141,7 +141,8 @@ public class FacebookHashtagCounter {
         System.out.println("Facebook Topic: " + facebookTopic);
         System.out.println("Consumer Group: " + facebookGroup);
         System.out.println("Window Seconds: " + windowSeconds);
-        System.out.println("Watermark Delay: " + watermarkDelaySeconds);
+        System.out.println("Watermark Delay: " + watermarkDelaySeconds + "s");
+        System.out.println("Window Type: EVENT TIME (with watermarks)");
         System.out.println("===============================================");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -154,6 +155,7 @@ public class FacebookHashtagCounter {
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
+        // WATERMARK STRATEGY: Handles out-of-order events with 20-second delay
         DataStream<String> facebookStream = env.fromSource(
                 facebookSource,
                 WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(watermarkDelaySeconds))
@@ -161,10 +163,12 @@ public class FacebookHashtagCounter {
                 "FacebookSource"
         );
 
+        // Using TumblingEventTimeWindows
+        // This makes watermarks ACTUALLY work for handling out-of-order events
         DataStream<Tuple2<String, Integer>> hashtagCounts = facebookStream
                 .flatMap(new HashtagExtractor())
                 .keyBy(value -> value.f0)
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(windowSeconds)))
+                .window(TumblingEventTimeWindows.of(Time.seconds(windowSeconds)))
                 .sum(1);
 
         hashtagCounts.print("FACEBOOK_HASHTAG_COUNTS");

@@ -8,7 +8,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;  // ✅ CHANGED: Event Time Windows
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
@@ -27,7 +27,7 @@ public class TwitterHashtagCounter {
         private final ObjectMapper mapper = new ObjectMapper();
         private final Pattern hashtagPattern = Pattern.compile("#(\\w+)", Pattern.CASE_INSENSITIVE);
         
-        // SAME METRICS AS FACEBOOK (for fair comparison)
+        // METRICS FOR COMPARISON (all serializable)
         private int totalMessages = 0;
         private int messagesWithHashtags = 0;
         private int totalHashtags = 0;
@@ -46,7 +46,7 @@ public class TwitterHashtagCounter {
                 JsonNode root = mapper.readTree(value);
                 JsonNode data = root.path("data");
                 
-                // ONLY EXTRACT FROM DESCRIPTION TEXT (same approach as Facebook)
+                // Extract hashtags from description field
                 JsonNode descriptionNode = data.path("description");
                 if (!descriptionNode.isMissingNode()) {
                     String description = descriptionNode.asText();
@@ -57,7 +57,7 @@ public class TwitterHashtagCounter {
                     
                     while (matcher.find()) {
                         String hashtag = matcher.group(1).toLowerCase();
-                        out.collect(new Tuple2<>(hashtag, 1));  // Same as Facebook - no prefix
+                        out.collect(new Tuple2<>(hashtag, 1));
                         hashtagsInMessage++;
                         totalHashtags++;
                     }
@@ -66,8 +66,6 @@ public class TwitterHashtagCounter {
                         messagesWithHashtags++;
                     }
                 }
-                
-                // REMOVED PRODUCER HASHTAG PROCESSING FOR FAIR COMPARISON
                 
             } catch (Exception e) {
                 parseErrors++;
@@ -88,7 +86,7 @@ public class TwitterHashtagCounter {
         }
         
         private void printMetrics() {
-            // IDENTICAL CALCULATION LOGIC AS FACEBOOK
+            // Calculate metrics
             double hashtagCoverage = (totalMessages > 0) ? (messagesWithHashtags * 100.0 / totalMessages) : 0;
             double avgHashtagsPerMessage = (totalMessages > 0) ? (totalHashtags / (double) totalMessages) : 0;
             double errorRate = (totalMessages > 0) ? (parseErrors * 100.0 / totalMessages) : 0;
@@ -99,14 +97,14 @@ public class TwitterHashtagCounter {
             System.out.println("TWITTER METRICS (Messages: " + totalMessages + ")");
             System.out.println("=".repeat(50));
             
-            // IDENTICAL FORMAT AS FACEBOOK
+            // ACCURACY
             System.out.println("ACCURACY:");
             System.out.printf("   Messages with hashtags: %d (%.1f%%)%n", messagesWithHashtags, hashtagCoverage);
             System.out.printf("   Total hashtags found: %d%n", totalHashtags);
             System.out.printf("   Avg hashtags per message: %.2f%n", avgHashtagsPerMessage);
             System.out.printf("   Parse errors: %d (%.2f%%)%n", parseErrors, errorRate);
             
-            // IDENTICAL PERFORMANCE SECTION
+            // PERFORMANCE
             System.out.println("PERFORMANCE:");
             System.out.printf("   Avg latency: %.2f ms%n", avgLatencyMs);
             System.out.printf("   Min latency: %d ms%n", (minLatencyMs != Long.MAX_VALUE) ? minLatencyMs : 0);
@@ -131,7 +129,7 @@ public class TwitterHashtagCounter {
         // LOAD CONFIGURATION FROM FILE
         JsonNode config = loadConfig();
         
-        // READ VALUES FROM YOUR CONFIG.YML
+        // READ VALUES FROM CONFIG.YML
         String kafkaServers = config.path("kafka").path("container_servers").asText("kafka:29092");
         String twitterTopic = config.path("kafka").path("twitter_topic").asText("twitter-posts");
         String twitterGroup = config.path("kafka").path("consumer_groups").path("twitter").asText("twitter-counter");
@@ -143,7 +141,8 @@ public class TwitterHashtagCounter {
         System.out.println("Twitter Topic: " + twitterTopic);
         System.out.println("Consumer Group: " + twitterGroup);
         System.out.println("Window Seconds: " + windowSeconds);
-        System.out.println("Watermark Delay: " + watermarkDelaySeconds);
+        System.out.println("Watermark Delay: " + watermarkDelaySeconds + "s");
+        System.out.println("Window Type: EVENT TIME (with watermarks)");  
         System.out.println("===============================================");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -156,6 +155,7 @@ public class TwitterHashtagCounter {
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
+        // WATERMARK STRATEGY: Handles out-of-order events with 20-second delay
         DataStream<String> twitterStream = env.fromSource(
                 twitterSource,
                 WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(watermarkDelaySeconds))
@@ -163,10 +163,12 @@ public class TwitterHashtagCounter {
                 "TwitterSource"
         );
 
+        // Using TumblingEventTimeWindows
+        // This makes watermarks ACTUALLY work for handling out-of-order events
         DataStream<Tuple2<String, Integer>> hashtagCounts = twitterStream
                 .flatMap(new HashtagExtractor())
                 .keyBy(value -> value.f0)
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(windowSeconds)))
+                .window(TumblingEventTimeWindows.of(Time.seconds(windowSeconds)))
                 .sum(1);
 
         hashtagCounts.print("TWITTER_HASHTAG_COUNTS");
