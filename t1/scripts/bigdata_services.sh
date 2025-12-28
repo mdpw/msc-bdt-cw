@@ -234,7 +234,7 @@ show_status() {
     fi
     
     echo ""
-    echo "🔧 Running Java Processes:"
+    echo " Running Java Processes:"
     jps | grep -E "(NameNode|DataNode|ResourceManager|NodeManager|JobHistoryServer|HistoryServer)" | sort
     
     echo ""
