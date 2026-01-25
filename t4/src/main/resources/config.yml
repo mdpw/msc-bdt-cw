@@ -22,7 +22,7 @@ producer:
 
 flink:
   window_seconds: 15                       # Tumbling window size - Used by Java classes
-  watermark_delay_seconds: 20              # Watermark delay - Used by Java classes
+  watermark_delay_seconds: 5              # Watermark delay - Used by Java classes
   parallelism: 2                           # Flink parallelism setting
   job_name: "Social Media Hashtag Counter"
   
